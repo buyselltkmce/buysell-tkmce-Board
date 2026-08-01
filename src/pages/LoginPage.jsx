@@ -10,14 +10,15 @@ export default function LoginPage() {
   const [email, setEmail]                 = useState("Haro09a@gmail.com");
   const [password, setPassword]           = useState("");
   const [showPassword, setShowPassword]   = useState(false);
-  const storeIsLoading = useAuthStore((s) => s.isLoading);
-  const loading = isLoading || storeIsLoading;
+  const [localLoading, setLocalLoading]   = useState(false);
+  const storeIsLoading                    = useAuthStore((s) => s.isLoading);
+  const loading = localLoading || storeIsLoading;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
+    setLocalLoading(true);
     await login(email, password);
-    setIsLoading(false);
+    setLocalLoading(false);
   };
 
   return (
