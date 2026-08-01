@@ -34,11 +34,12 @@ export default function TeamPage() {
       {/* Member cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
         {TEAM_MEMBERS.map((member, i) => {
-          const memberTasks  = tasks.filter((t) => t.assignee.id === member.id);
-          const done         = memberTasks.filter((t) => t.status === "done").length;
-          const inProg       = memberTasks.filter((t) => t.status === "progress").length;
-          const totalHours   = memberTasks.reduce((s, t) => s + t.estimatedHours, 0);
+          const memberTasks  = tasks.filter((t) => t.assignee?.id === member.id);
+          const done         = memberTasks.filter((t) => t.status === "deployed_live").length;
+          const inProg       = memberTasks.filter((t) => t.status === "in_development").length;
+          const totalHours   = memberTasks.reduce((s, t) => s + (t.estimatedHours || 0), 0);
           const completionPct = memberTasks.length ? Math.round((done / memberTasks.length) * 100) : 0;
+          const memberSkills  = SKILLS[i] || ["React", "Node.js", "Docker", "DevOps"];
 
           return (
             <motion.div key={member.id} {...fadeUp(i + 1)}
@@ -54,7 +55,7 @@ export default function TeamPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-bold text-slate-900">{member.name}</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">{ROLES[i]}</p>
+                  <p className="text-xs text-slate-500 mt-0.5">{member.role}</p>
                   <div className="flex items-center gap-1 mt-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
                     <span className="text-[10px] text-slate-400">Online</span>
@@ -96,7 +97,7 @@ export default function TeamPage() {
 
               {/* Skills */}
               <div className="flex flex-wrap gap-1 mb-4">
-                {SKILLS[i].map((skill) => (
+                {memberSkills.map((skill) => (
                   <span key={skill} className="text-[10px] font-medium px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md">
                     {skill}
                   </span>

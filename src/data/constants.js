@@ -54,11 +54,8 @@ export const EPICS = [
 ];
 
 export const TEAM_MEMBERS = [
-  { id: "u1", name: "Alex Morgan",  role: "Business Analyst (BA)", avatar: "AM", color: "#7C3AED" },
-  { id: "u2", name: "Sam Rivera",   role: "UI/UX Designer",       avatar: "SR", color: "#EC4899" },
-  { id: "u3", name: "Jordan Lee",   role: "Lead Backend Dev",      avatar: "JL", color: "#DC2626" },
-  { id: "u4", name: "Taylor Kim",   role: "Trading Engine Dev",    avatar: "TK", color: "#D97706" },
-  { id: "u5", name: "Casey Patel",  role: "QA & Compliance",       avatar: "CP", color: "#2563EB" },
+  { id: "u1", name: "Haroshin", role: "Lead Developer & UI/UX", avatar: "HK", color: "#7C3AED" },
+  { id: "u2", name: "Arjun PK", role: "BA & Lead DevOps",       avatar: "AP", color: "#EC4899" },
 ];
 
 export const COLUMNS = [
