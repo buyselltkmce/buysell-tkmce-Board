@@ -163,7 +163,7 @@ export default function SettingsPage() {
               <div>
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-3">Theme</label>
                 <div className="grid grid-cols-3 gap-3">
-                  {[
+                {[
                     { id: "light",  label: "Light",  icon: Sun     },
                     { id: "dark",   label: "Dark",   icon: Moon    },
                     { id: "system", label: "System", icon: Monitor },
@@ -171,8 +171,13 @@ export default function SettingsPage() {
                     <button
                       key={id}
                       onClick={() => {
-                        if ((id === "dark" && theme !== "dark") || (id === "light" && theme !== "light")) {
-                          toggleTheme();
+                        if (id === "system") {
+                          const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                          if (prefersDark && theme !== "dark") toggleTheme();
+                          if (!prefersDark && theme !== "light") toggleTheme();
+                        } else {
+                          if (id === "dark"  && theme !== "dark")  toggleTheme();
+                          if (id === "light" && theme !== "light") toggleTheme();
                         }
                       }}
                       className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${

@@ -8,7 +8,7 @@ import {
   deleteTaskFromSupabase,
   subscribeToSupabaseRealtime,
 } from "../services/taskService";
-import { isSupabaseConfigured } from "../services/supabase";
+import { isSupabaseConfigured, supabase } from "../services/supabase";
 
 const PRIORITY_ORDER = { critical: 0, high: 1, medium: 2, low: 3 };
 

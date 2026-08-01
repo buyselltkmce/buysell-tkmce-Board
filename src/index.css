@@ -34,7 +34,10 @@ html.dark .bg-white {
   border-color: #1F293D !important;
 }
 
-html.dark .bg-slate-50 {
+html.dark .bg-slate-50,
+html.dark .bg-slate-50\/40,
+html.dark .bg-slate-50\/50,
+html.dark .bg-slate-50\/60 {
   background-color: #0F172A !important;
   color: #CBD5E1 !important;
   border-color: #1E293B !important;
@@ -99,11 +102,52 @@ html.dark .glass-card {
   border-color: rgba(255, 255, 255, 0.08);
 }
 
+/* ── Dark Mode: Sidebar & Header ──────────────────────── */
+html.dark aside,
+html.dark header {
+  background-color: #111827 !important;
+  border-color: #1E293B !important;
+}
+
+/* ── Dark Mode: Column wrapper ─────────────────────────── */
+html.dark .column-wrapper > div:first-child {
+  background-color: #111827 !important;
+  border-color: #1E293B !important;
+}
+
+/* ── Dark Mode: Task cards ─────────────────────────────── */
+html.dark .bg-white.rounded-xl {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+/* ── Dark Mode: Board background ───────────────────────── */
+html.dark .columns-scroll {
+  background-color: #0B0F19;
+}
+
+html.dark .column-tasks {
+  background-color: #0F172A !important;
+  border-color: #1E293B !important;
+}
+
+html.dark .drop-active {
+  background: #1e3a5f !important;
+  border-color: #3b82f6 !important;
+}
+
+/* ── Dark Mode: Modals ─────────────────────────────────── */
+html.dark .modal-backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
 /* ── Scrollbar ────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+html.dark ::-webkit-scrollbar-thumb { background: #334155; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
 
 /* ── Custom animations ────────────────────────────────── */
 @keyframes fadeInUp {

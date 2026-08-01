@@ -160,7 +160,6 @@ export default function DashboardPage() {
                 <div key={task.id} onClick={() => navigate(`/task/${task.id}`)}
                   className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors group"
                 >
-                  <div className="w-2 h-2 rounded-full shrink-0" style={{ background: pCfg.dot.replace("bg-", "").replace("-500","").replace("-400","") }} />
                   <div
                     className="w-2 h-2 rounded-full shrink-0"
                     style={{

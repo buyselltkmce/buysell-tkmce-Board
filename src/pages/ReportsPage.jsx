@@ -34,22 +34,22 @@ export default function ReportsPage() {
   const { tasks } = useBoardStore();
 
   const total      = tasks.length;
-  const done       = tasks.filter((t) => t.status === "done").length;
+  const done       = tasks.filter((t) => t.status === "deployed_live").length;
   const overdue    = tasks.filter((t) => {
     const { isOverdue } = formatDueDate(t.dueDate);
-    return isOverdue && t.status !== "done";
+    return isOverdue && t.status !== "deployed_live";
   }).length;
   const totalHours = tasks.reduce((sum, t) => sum + t.estimatedHours, 0);
 
   // Tasks per member
   const memberStats = TEAM_MEMBERS.map((m) => {
-    const memberTasks = tasks.filter((t) => t.assignee.id === m.id);
+    const memberTasks = tasks.filter((t) => t.assignee?.id === m.id);
     return {
       ...m,
       total:    memberTasks.length,
-      done:     memberTasks.filter((t) => t.status === "done").length,
-      progress: memberTasks.filter((t) => t.status === "progress").length,
-      hours:    memberTasks.reduce((s, t) => s + t.estimatedHours, 0),
+      done:     memberTasks.filter((t) => t.status === "deployed_live").length,
+      progress: memberTasks.filter((t) => t.status === "in_development").length,
+      hours:    memberTasks.reduce((s, t) => s + (t.estimatedHours || 0), 0),
     };
   }).sort((a, b) => b.total - a.total);
 
