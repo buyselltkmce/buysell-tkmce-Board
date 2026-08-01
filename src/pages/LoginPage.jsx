@@ -10,15 +10,14 @@ export default function LoginPage() {
   const [email, setEmail]                 = useState("Haro09a@gmail.com");
   const [password, setPassword]           = useState("");
   const [showPassword, setShowPassword]   = useState(false);
-  const [isLoading, setIsLoading]         = useState(false);
+  const storeIsLoading = useAuthStore((s) => s.isLoading);
+  const loading = isLoading || storeIsLoading;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => {
-      login(email, password);
-      setIsLoading(false);
-    }, 350);
+    await login(email, password);
+    setIsLoading(false);
   };
 
   return (
@@ -106,14 +105,15 @@ export default function LoginPage() {
             <p className="text-[10px] text-slate-400 mt-1">
               Default password: <span className="font-semibold text-slate-500">buysell2026</span>
             </p>
+          </div>
 
           {/* Login Submit Button */}
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={loading}
             className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-600/20 flex items-center justify-center gap-2 active:scale-98 disabled:opacity-50"
           >
-            {isLoading ? (
+            {loading ? (
               <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
               <>

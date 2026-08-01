@@ -54,14 +54,16 @@ function PageLayout({ children }) {
 export default function App() {
   const initCloudSync   = useBoardStore((s) => s.initCloudSync);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const initAuth        = useAuthStore((s) => s.initAuth);
   const initTheme       = useThemeStore((s) => s.initTheme);
 
   useEffect(() => {
     initTheme();
+    initAuth();
     if (isAuthenticated) {
       initCloudSync();
     }
-  }, [initCloudSync, isAuthenticated, initTheme]);
+  }, [initCloudSync, isAuthenticated, initAuth, initTheme]);
 
   if (!isAuthenticated) {
     return (

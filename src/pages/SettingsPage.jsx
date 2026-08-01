@@ -59,7 +59,9 @@ function ChangePasswordModal({ onClose, userEmail }) {
   const [error,     setError]     = useState("");
   const [success,   setSuccess]   = useState(false);
 
-  const handleChange = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleChange = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -72,8 +74,11 @@ function ChangePasswordModal({ onClose, userEmail }) {
       return;
     }
 
-    // Call the real changePassword action
-    const result = changePassword(userEmail, current, newPass);
+    setIsSubmitting(true);
+    // Call Supabase Auth update password
+    const result = await changePassword(newPass);
+    setIsSubmitting(false);
+
     if (!result.success) {
       setError(result.error);
       return;
@@ -178,10 +183,16 @@ function ChangePasswordModal({ onClose, userEmail }) {
             </button>
             <button
               type="submit"
-              disabled={success}
+              disabled={success || isSubmitting}
               className="flex items-center gap-1.5 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm disabled:opacity-50"
             >
-              <KeyRound size={13} /> Update Password
+              {isSubmitting ? (
+                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <KeyRound size={13} /> Update Password
+                </>
+              )}
             </button>
           </div>
         </form>
