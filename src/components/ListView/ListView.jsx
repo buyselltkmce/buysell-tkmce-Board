@@ -126,12 +126,12 @@ export default function ListView() {
             return (
               <div
                 key={epic.id}
-                className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+                className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
               >
                 {/* Epic Section Header */}
                 <div
                   onClick={() => toggleSection(epic.id)}
-                  className="flex items-center justify-between px-5 py-3.5 bg-slate-50/90 hover:bg-slate-100/90 border-b border-slate-200 cursor-pointer select-none transition-colors"
+                  className="flex items-center justify-between px-5 py-3.5 bg-slate-50 dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 border-b border-slate-200 dark:border-slate-800 cursor-pointer select-none transition-colors"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <ChevronRight
@@ -143,7 +143,7 @@ export default function ListView() {
                       <span className="font-mono text-xs font-bold px-2 py-0.5 rounded border" style={{ background: epic.badgeBg, color: epic.color, borderColor: `${epic.color}40` }}>
                         {MAIN_BRANCH.code} / {epic.key}
                       </span>
-                      <span className="text-sm font-bold text-slate-900">{epic.title}</span>
+                      <span className="text-sm font-bold text-slate-900 dark:text-white">{epic.title}</span>
                     </div>
                   </div>
 
@@ -176,7 +176,7 @@ export default function ListView() {
                     )}
 
                     {/* Quick Line Add to Epic */}
-                    <div className="flex items-center gap-3 px-4 py-2 bg-slate-50/50 border-t border-slate-100">
+                    <div className="flex items-center gap-3 px-4 py-2 bg-slate-50/50 dark:bg-slate-950/60 border-t border-slate-100 dark:border-slate-800">
                       <Plus size={14} className="text-slate-400 shrink-0" />
                       <input
                         type="text"
@@ -188,7 +188,7 @@ export default function ListView() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter") handleQuickAdd(epic.id);
                         }}
-                        className="flex-1 bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400 placeholder:italic font-mono"
+                        className="flex-1 bg-transparent text-xs text-slate-700 dark:text-slate-200 outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:italic font-mono"
                       />
                       {quickInputs[epic.id] && (
                         <button
@@ -308,7 +308,7 @@ function TaskLineRow({ task }) {
   return (
     <div
       onClick={() => navigate(`/task/${task.id}`)}
-      className="group grid grid-cols-[2.5fr_1.4fr_1.2fr_1fr_1.2fr_1.1fr_70px_40px] gap-3 px-4 py-2.5 items-center hover:bg-purple-50/40 cursor-pointer transition-colors"
+      className="group grid grid-cols-[2.5fr_1.4fr_1.2fr_1fr_1.2fr_1.1fr_70px_40px] gap-3 px-4 py-2.5 items-center hover:bg-purple-50/40 dark:hover:bg-slate-800/60 cursor-pointer transition-colors"
     >
       {/* 1. Checkbox + Ticket Key + Title */}
       <div className="flex items-center gap-2.5 min-w-0">
@@ -317,20 +317,20 @@ function TaskLineRow({ task }) {
           className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${
             isDone
               ? "bg-green-500 border-green-500 text-white"
-              : "border-slate-300 hover:border-purple-500 bg-white"
+              : "border-slate-300 dark:border-slate-700 hover:border-purple-500 bg-white dark:bg-slate-900"
           }`}
           title={isDone ? "Mark incomplete" : "Mark released"}
         >
           {isDone && <Check size={10} />}
         </button>
 
-        <span className="font-mono text-xs font-bold text-slate-800 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 shrink-0">
+        <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 shrink-0">
           {ticketKey}
         </span>
 
         <span
           className={`text-xs font-semibold truncate transition-colors ${
-            isDone ? "line-through text-slate-400" : "text-slate-800 group-hover:text-purple-700"
+            isDone ? "line-through text-slate-400 dark:text-slate-500" : "text-slate-800 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400"
           }`}
         >
           {task.title}
@@ -350,8 +350,8 @@ function TaskLineRow({ task }) {
         </button>
 
         {showEpicMenu && (
-          <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-xl shadow-xl border border-slate-200 z-30 py-1 animate-scale-in">
-            <div className="px-3 py-1 border-b border-slate-100 text-[10px] font-mono font-bold text-purple-700">
+          <div className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 z-30 py-1 animate-scale-in">
+            <div className="px-3 py-1 border-b border-slate-100 dark:border-slate-800 text-[10px] font-mono font-bold text-purple-700 dark:text-purple-400">
               Branch: {MAIN_BRANCH.code}
             </div>
             {EPICS.map((e) => (
@@ -362,7 +362,7 @@ function TaskLineRow({ task }) {
                   setShowEpicMenu(false);
                 }}
                 className={`w-full flex items-center justify-between px-3 py-1.5 text-xs ${
-                  task.epicId === e.id ? "bg-purple-50 font-bold text-purple-700" : "hover:bg-slate-50 text-slate-700"
+                  task.epicId === e.id ? "bg-purple-50 dark:bg-purple-950/40 font-bold text-purple-700 dark:text-purple-300" : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
                 }`}
               >
                 <span className="font-mono">{e.key}</span>
@@ -386,7 +386,7 @@ function TaskLineRow({ task }) {
         </button>
 
         {showStatusMenu && (
-          <div className="absolute top-full left-0 mt-1 w-44 bg-white rounded-xl shadow-xl border border-slate-200 z-30 py-1 animate-scale-in">
+          <div className="absolute top-full left-0 mt-1 w-44 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 z-30 py-1 animate-scale-in">
             {COLUMNS.map((c) => (
               <button
                 key={c.id}
@@ -395,7 +395,7 @@ function TaskLineRow({ task }) {
                   setShowStatusMenu(false);
                 }}
                 className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs ${
-                  task.status === c.id ? "bg-blue-50 font-bold text-blue-600" : "hover:bg-slate-50 text-slate-700"
+                  task.status === c.id ? "bg-blue-50 dark:bg-blue-950/40 font-bold text-blue-600 dark:text-blue-400" : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
                 }`}
               >
                 <span>{c.emoji}</span>
@@ -417,7 +417,7 @@ function TaskLineRow({ task }) {
         </button>
 
         {showPriorityMenu && (
-          <div className="absolute top-full left-0 mt-1 w-32 bg-white rounded-xl shadow-xl border border-slate-200 z-30 py-1 animate-scale-in">
+          <div className="absolute top-full left-0 mt-1 w-32 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 z-30 py-1 animate-scale-in">
             {Object.entries(PRIORITY_CONFIG).map(([k, cfg]) => (
               <button
                 key={k}
@@ -425,7 +425,7 @@ function TaskLineRow({ task }) {
                   updateTask(task.id, { priority: k });
                   setShowPriorityMenu(false);
                 }}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs ${cfg.color} hover:bg-slate-50`}
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs ${cfg.color} hover:bg-slate-50 dark:hover:bg-slate-800`}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
                 <span>{cfg.label}</span>
