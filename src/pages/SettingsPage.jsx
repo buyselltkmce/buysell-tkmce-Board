@@ -5,6 +5,8 @@ import {
   Zap, Check, ChevronRight, Moon, Sun, Monitor,
 } from "lucide-react";
 
+import { useAuthStore } from "../store/authStore";
+
 const fadeUp = (i) => ({
   initial: { opacity: 0, y: 12 },
   animate: { opacity: 1, y: 0 },
@@ -44,6 +46,7 @@ const SECTIONS = [
 ];
 
 export default function SettingsPage() {
+  const { user } = useAuthStore();
   const [active, setActive]     = useState("profile");
   const [saved, setSaved]       = useState(false);
   const [theme, setTheme]       = useState("light");
@@ -54,7 +57,12 @@ export default function SettingsPage() {
     publicProfile: false, activityStatus: true, analytics: true,
   });
   const [profile, setProfile]   = useState({
-    name: "You", email: "you@company.com", role: "Admin", timezone: "Asia/Kolkata",
+    name: user?.name || "Haroshin K K",
+    email: user?.email || "Haro09a@gmail.com",
+    role: user?.role || "Lead Developer & UI/UX (Admin)",
+    avatar: user?.avatar || "HK",
+    color: user?.color || "#7C3AED",
+    timezone: "Asia/Kolkata",
   });
 
   const handleSave = () => {
@@ -95,8 +103,8 @@ export default function SettingsPage() {
             <div className="space-y-6">
               <h2 className="text-base font-bold text-slate-900">Profile Settings</h2>
               <div className="flex items-center gap-4 pb-5 border-b border-slate-100">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-xl font-bold shrink-0" style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}>
-                  YO
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-xl font-bold shrink-0 shadow-sm" style={{ background: profile.color || "#7C3AED" }}>
+                  {profile.avatar || "HK"}
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-800">{profile.name}</p>
