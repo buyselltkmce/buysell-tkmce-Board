@@ -13,7 +13,9 @@ import CalendarPage from "./pages/CalendarPage";
 import ReportsPage from "./pages/ReportsPage";
 import TeamPage from "./pages/TeamPage";
 import SettingsPage from "./pages/SettingsPage";
+import LoginPage from "./pages/LoginPage";
 import { useBoardStore } from "./store/boardStore";
+import { useAuthStore } from "./store/authStore";
 
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -49,11 +51,22 @@ function PageLayout({ children }) {
 }
 
 export default function App() {
-  const initCloudSync = useBoardStore((s) => s.initCloudSync);
+  const initCloudSync   = useBoardStore((s) => s.initCloudSync);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   useEffect(() => {
-    initCloudSync();
-  }, [initCloudSync]);
+    if (isAuthenticated) {
+      initCloudSync();
+    }
+  }, [initCloudSync, isAuthenticated]);
+
+  if (!isAuthenticated) {
+    return (
+      <ErrorBoundary>
+        <LoginPage />
+      </ErrorBoundary>
+    );
+  }
 
   return (
     <ErrorBoundary>

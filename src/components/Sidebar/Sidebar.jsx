@@ -1,9 +1,10 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Kanban, Calendar, BarChart2,
-  Users, Settings, ChevronRight, Zap, Repeat, GitBranch,
+  Users, Settings, ChevronRight, Zap, Repeat, GitBranch, LogOut
 } from "lucide-react";
 import { useBoardStore } from "../../store/boardStore";
+import { useAuthStore } from "../../store/authStore";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard",    icon: LayoutDashboard, path: "/dashboard" },
@@ -18,8 +19,16 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const { tasks } = useBoardStore();
+  const { user, logout } = useAuthStore();
   const navigate  = useNavigate();
-  const inProgress = tasks.filter((t) => t.status === "progress").length;
+  const inProgress = tasks.filter((t) => t.status === "in_development").length;
+
+  const currentUser = user || {
+    name: "Haroshin K K",
+    email: "Haro09a@gmail.com",
+    avatar: "HK",
+    color: "#7C3AED"
+  };
 
   return (
     <aside className="w-60 shrink-0 bg-white border-r border-slate-100 flex flex-col h-screen">
@@ -78,20 +87,24 @@ export default function Sidebar() {
 
       {/* Bottom user */}
       <div className="border-t border-slate-100 px-4 py-3">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-xs"
-            style={{ background: "linear-gradient(135deg,#7C3AED,#2563EB)" }}
+            style={{ background: currentUser.color || "#7C3AED" }}
           >
-            HK
+            {currentUser.avatar || "HK"}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold text-slate-800 truncate">Haroshin K K</p>
-            <p className="text-[10px] text-slate-400 truncate">Haro09a@gmail.com</p>
+            <p className="text-xs font-bold text-slate-800 truncate">{currentUser.name}</p>
+            <p className="text-[10px] text-slate-400 truncate">{currentUser.email}</p>
           </div>
-          <NavLink to="/settings">
-            <Settings size={14} className="ml-auto text-slate-400 cursor-pointer hover:text-slate-600 transition-colors shrink-0" />
-          </NavLink>
+          <button
+            onClick={logout}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+            title="Log Out of Workspace"
+          >
+            <LogOut size={14} />
+          </button>
         </div>
       </div>
     </aside>
