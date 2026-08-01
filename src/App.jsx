@@ -16,6 +16,7 @@ import SettingsPage from "./pages/SettingsPage";
 import LoginPage from "./pages/LoginPage";
 import { useBoardStore } from "./store/boardStore";
 import { useAuthStore } from "./store/authStore";
+import { useThemeStore } from "./store/themeStore";
 
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -53,12 +54,14 @@ function PageLayout({ children }) {
 export default function App() {
   const initCloudSync   = useBoardStore((s) => s.initCloudSync);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const initTheme       = useThemeStore((s) => s.initTheme);
 
   useEffect(() => {
+    initTheme();
     if (isAuthenticated) {
       initCloudSync();
     }
-  }, [initCloudSync, isAuthenticated]);
+  }, [initCloudSync, isAuthenticated, initTheme]);
 
   if (!isAuthenticated) {
     return (

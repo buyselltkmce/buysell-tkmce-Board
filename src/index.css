@@ -18,6 +18,36 @@ body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+html.dark body {
+  background: #0B0F17;
+  color: #F8FAFC;
+}
+
+html.dark .bg-white {
+  background-color: #151C2C !important;
+  color: #F1F5F9 !important;
+  border-color: #1E293B !important;
+}
+
+html.dark .bg-slate-50 {
+  background-color: #0F172A !important;
+  color: #CBD5E1 !important;
+  border-color: #1E293B !important;
+}
+
+html.dark .border-slate-100, html.dark .border-slate-200 {
+  border-color: #1E293B !important;
+}
+
+html.dark .text-slate-900, html.dark .text-slate-800, html.dark .text-slate-700 {
+  color: #F1F5F9 !important;
+}
+
+html.dark .text-slate-600, html.dark .text-slate-500 {
+  color: #94A3B8 !important;
 }
 
 /* ── Scrollbar ────────────────────────────────────────── */

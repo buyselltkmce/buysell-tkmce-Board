@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import {
   Search, Plus, SlidersHorizontal, ChevronDown,
-  LayoutGrid, List, Bell, X, Check, Repeat, Trash2
+  LayoutGrid, List, Bell, X, Check, Repeat, Trash2, Sun, Moon
 } from "lucide-react";
 import { useBoardStore } from "../../store/boardStore";
+import { useThemeStore } from "../../store/themeStore";
 import { TEAM_MEMBERS, ALL_LABELS, PRIORITY_CONFIG, CYCLES } from "../../data/constants";
 
 const SORT_OPTIONS = [
@@ -15,6 +16,7 @@ const SORT_OPTIONS = [
 
 export default function Header() {
   const { filters, setFilters, resetFilters, viewMode, setViewMode, openCreateModal, clearAllTasks } = useBoardStore();
+  const { theme, toggleTheme } = useThemeStore();
   const [showFilters, setShowFilters] = useState(false);
   const [showSort, setShowSort]       = useState(false);
   const [showCycles, setShowCycles]   = useState(false);
@@ -293,9 +295,18 @@ export default function Header() {
       </div>
 
       {/* Bell */}
-      <button className="relative p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+      <button className="relative p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 transition-colors">
         <Bell size={16} />
         <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full border border-white" />
+      </button>
+
+      {/* Theme Toggle Switcher */}
+      <button
+        onClick={toggleTheme}
+        className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 transition-colors"
+        title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+      >
+        {theme === "dark" ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
       </button>
 
       {/* Clear All Data */}
