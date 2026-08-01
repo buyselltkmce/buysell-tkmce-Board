@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 
 import { useAuthStore } from "../store/authStore";
+import { useThemeStore } from "../store/themeStore";
 
 const fadeUp = (i) => ({
   initial: { opacity: 0, y: 12 },
@@ -47,6 +48,7 @@ const SECTIONS = [
 
 export default function SettingsPage() {
   const { user } = useAuthStore();
+  const { theme, toggleTheme } = useThemeStore();
   const [active, setActive]     = useState("profile");
   const [saved, setSaved]       = useState(false);
   const [theme, setTheme]       = useState("light");
@@ -169,9 +171,13 @@ export default function SettingsPage() {
                   ].map(({ id, label, icon: Icon }) => (
                     <button
                       key={id}
-                      onClick={() => setTheme(id)}
+                      onClick={() => {
+                        if ((id === "dark" && theme !== "dark") || (id === "light" && theme !== "light")) {
+                          toggleTheme();
+                        }
+                      }}
                       className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
-                        theme === id ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-slate-300"
+                        theme === id ? "border-blue-500 bg-blue-50 dark:bg-blue-950/40" : "border-slate-200 dark:border-slate-800 hover:border-slate-300"
                       }`}
                     >
                       <Icon size={20} className={theme === id ? "text-blue-600" : "text-slate-400"} />
