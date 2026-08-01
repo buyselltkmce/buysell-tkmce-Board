@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   User, Bell, Shield, Palette, Globe, Database,
   Zap, Check, ChevronRight, Moon, Sun, Monitor,
+  Lock, Eye, EyeOff, X, KeyRound,
 } from "lucide-react";
 
 import { useAuthStore } from "../store/authStore";
@@ -46,18 +47,164 @@ const SECTIONS = [
   { id: "data",         label: "Data & Export", icon: Database   },
 ];
 
+// ── Change Password Modal ──────────────────────────────
+function ChangePasswordModal({ onClose }) {
+  const [current,   setCurrent]   = useState("");
+  const [newPass,   setNewPass]   = useState("");
+  const [confirm,   setConfirm]   = useState("");
+  const [showCur,   setShowCur]   = useState(false);
+  const [showNew,   setShowNew]   = useState(false);
+  const [showCon,   setShowCon]   = useState(false);
+  const [error,     setError]     = useState("");
+  const [success,   setSuccess]   = useState(false);
+
+  const handleChange = (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (current.length < 4) {
+      setError("Current password must be at least 4 characters.");
+      return;
+    }
+    if (newPass.length < 6) {
+      setError("New password must be at least 6 characters.");
+      return;
+    }
+    if (newPass !== confirm) {
+      setError("New passwords do not match.");
+      return;
+    }
+    if (newPass === current) {
+      setError("New password must be different from the current one.");
+      return;
+    }
+
+    // ✅ Password accepted — show success (local-only, no real backend)
+    setSuccess(true);
+    setTimeout(() => onClose(), 1800);
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md border border-slate-200 dark:border-slate-800 overflow-hidden"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-2">
+            <span className="p-1.5 rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600">
+              <KeyRound size={16} />
+            </span>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Change Password</h3>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors">
+            <X size={16} />
+          </button>
+        </div>
+
+        <form onSubmit={handleChange} className="p-6 space-y-4">
+          {/* Success */}
+          {success && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center gap-2 p-3 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 rounded-xl text-xs text-green-700 dark:text-green-400 font-semibold"
+            >
+              <Check size={14} /> Password updated successfully!
+            </motion.div>
+          )}
+
+          {/* Error */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl text-xs text-red-600 dark:text-red-400 font-semibold"
+            >
+              {error}
+            </motion.div>
+          )}
+
+          {/* Current Password */}
+          {[{label:"Current Password", val:current, set:setCurrent, show:showCur, toggle:()=>setShowCur(v=>!v)},
+            {label:"New Password",     val:newPass, set:setNewPass, show:showNew, toggle:()=>setShowNew(v=>!v)},
+            {label:"Confirm New Password", val:confirm, set:setConfirm, show:showCon, toggle:()=>setShowCon(v=>!v)},
+          ].map(({ label, val, set: setter, show, toggle }) => (
+            <div key={label}>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">{label}</label>
+              <div className="relative">
+                <Lock size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type={show ? "text" : "password"}
+                  required
+                  value={val}
+                  onChange={(e) => { setter(e.target.value); setError(""); }}
+                  placeholder="••••••••"
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-10 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all text-slate-900 dark:text-white"
+                />
+                <button
+                  type="button"
+                  onClick={toggle}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                >
+                  {show ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+            </div>
+          ))}
+
+          {/* Password strength hint */}
+          {newPass.length > 0 && (
+            <div className="text-[10px] text-slate-400 flex items-center gap-1.5">
+              <div className={`h-1 w-8 rounded-full ${ newPass.length < 6 ? "bg-red-400" : newPass.length < 10 ? "bg-yellow-400" : "bg-green-400"}`} />
+              {newPass.length < 6 ? "Too short" : newPass.length < 10 ? "Good" : "Strong"}
+            </div>
+          )}
+
+          {/* Buttons */}
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={success}
+              className="flex items-center gap-1.5 px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm disabled:opacity-50"
+            >
+              <KeyRound size={13} /> Update Password
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+}
+
+// ── Main Settings Page ──────────────────────────────────
 export default function SettingsPage() {
   const { user } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
-  const [active, setActive]     = useState("profile");
-  const [saved, setSaved]       = useState(false);
-  const [notifs, setNotifs]     = useState({
+  const [active, setActive]         = useState("profile");
+  const [saved, setSaved]           = useState(false);
+  const [showChangePwd, setShowChangePwd] = useState(false);
+  const [notifs, setNotifs]         = useState({
     email: true, push: false, mentions: true, dueDate: true, assignments: true,
   });
-  const [privacy, setPrivacy]   = useState({
+  const [privacy, setPrivacy]       = useState({
     publicProfile: false, activityStatus: true, analytics: true,
   });
-  const [profile, setProfile]   = useState({
+  const [profile, setProfile]       = useState({
     name: user?.name || "Haroshin K K",
     email: user?.email || "Haro09a@gmail.com",
     role: user?.role || "Lead Developer & UI/UX (Admin)",
@@ -214,10 +361,22 @@ export default function SettingsPage() {
                 <Toggle checked={privacy.analytics} onChange={(v) => setPrivacy((p) => ({ ...p, analytics: v }))} />
               </SettingRow>
               <div className="pt-5 mt-5 border-t border-slate-100 space-y-3">
-                <button className="w-full text-left px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-700 hover:border-blue-300 hover:bg-blue-50 transition-colors font-medium">
+                <button
+                  onClick={() => setShowChangePwd(true)}
+                  className="w-full flex items-center gap-2 px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-700 hover:border-blue-300 hover:bg-blue-50 transition-colors font-medium group"
+                >
+                  <KeyRound size={15} className="text-slate-400 group-hover:text-blue-600 transition-colors" />
                   Change Password
                 </button>
-                <button className="w-full text-left px-4 py-3 rounded-xl border border-red-200 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium">
+                <button
+                  onClick={() => {
+                    if (window.confirm("Are you sure you want to delete your account? This cannot be undone.")) {
+                      alert("Account deletion would be processed here.");
+                    }
+                  }}
+                  className="w-full flex items-center gap-2 px-4 py-3 rounded-xl border border-red-200 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium group"
+                >
+                  <X size={15} className="text-red-400" />
                   Delete Account
                 </button>
               </div>
@@ -295,6 +454,11 @@ export default function SettingsPage() {
           </div>
         </motion.div>
       </div>
+
+      {/* Change Password Modal */}
+      <AnimatePresence>
+        {showChangePwd && <ChangePasswordModal onClose={() => setShowChangePwd(false)} />}
+      </AnimatePresence>
     </div>
   );
 }
