@@ -48,7 +48,8 @@ const SECTIONS = [
 ];
 
 // ── Change Password Modal ──────────────────────────────
-function ChangePasswordModal({ onClose }) {
+function ChangePasswordModal({ onClose, userEmail }) {
+  const { changePassword } = useAuthStore();
   const [current,   setCurrent]   = useState("");
   const [newPass,   setNewPass]   = useState("");
   const [confirm,   setConfirm]   = useState("");
@@ -62,10 +63,6 @@ function ChangePasswordModal({ onClose }) {
     e.preventDefault();
     setError("");
 
-    if (current.length < 4) {
-      setError("Current password must be at least 4 characters.");
-      return;
-    }
     if (newPass.length < 6) {
       setError("New password must be at least 6 characters.");
       return;
@@ -74,12 +71,14 @@ function ChangePasswordModal({ onClose }) {
       setError("New passwords do not match.");
       return;
     }
-    if (newPass === current) {
-      setError("New password must be different from the current one.");
+
+    // Call the real changePassword action
+    const result = changePassword(userEmail, current, newPass);
+    if (!result.success) {
+      setError(result.error);
       return;
     }
 
-    // ✅ Password accepted — show success (local-only, no real backend)
     setSuccess(true);
     setTimeout(() => onClose(), 1800);
   };
@@ -457,7 +456,7 @@ export default function SettingsPage() {
 
       {/* Change Password Modal */}
       <AnimatePresence>
-        {showChangePwd && <ChangePasswordModal onClose={() => setShowChangePwd(false)} />}
+        {showChangePwd && <ChangePasswordModal onClose={() => setShowChangePwd(false)} userEmail={profile.email} />}
       </AnimatePresence>
     </div>
   );

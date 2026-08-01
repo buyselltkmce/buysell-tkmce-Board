@@ -103,7 +103,9 @@ export default function LoginPage() {
                 {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
-          </div>
+            <p className="text-[10px] text-slate-400 mt-1">
+              Default password: <span className="font-semibold text-slate-500">buysell2026</span>
+            </p>
 
           {/* Login Submit Button */}
           <button
