@@ -51,7 +51,6 @@ export default function SettingsPage() {
   const { theme, toggleTheme } = useThemeStore();
   const [active, setActive]     = useState("profile");
   const [saved, setSaved]       = useState(false);
-  const [theme, setTheme]       = useState("light");
   const [notifs, setNotifs]     = useState({
     email: true, push: false, mentions: true, dueDate: true, assignments: true,
   });

@@ -1,6 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ── Base ─────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -21,9 +23,9 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-html.dark body {
-  background: #0B0F17;
-  color: #F8FAFC;
+html.dark, html.dark body {
+  background-color: #0B0F17 !important;
+  color: #F8FAFC !important;
 }
 
 html.dark .bg-white {
@@ -36,6 +38,11 @@ html.dark .bg-slate-50 {
   background-color: #0F172A !important;
   color: #CBD5E1 !important;
   border-color: #1E293B !important;
+}
+
+html.dark .bg-slate-100 {
+  background-color: #1E293B !important;
+  color: #E2E8F0 !important;
 }
 
 html.dark .border-slate-100, html.dark .border-slate-200 {
