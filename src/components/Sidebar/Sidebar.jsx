@@ -80,14 +80,14 @@ export default function Sidebar() {
       <div className="border-t border-slate-100 px-4 py-3">
         <div className="flex items-center gap-2.5">
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-            style={{ background: "linear-gradient(135deg,#2563EB,#7C3AED)" }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-xs"
+            style={{ background: "linear-gradient(135deg,#7C3AED,#2563EB)" }}
           >
-            YO
+            HK
           </div>
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-slate-800 truncate">You</p>
-            <p className="text-[10px] text-slate-400 truncate">Admin</p>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold text-slate-800 truncate">Haroshin K K</p>
+            <p className="text-[10px] text-slate-400 truncate">Haro09a@gmail.com</p>
           </div>
           <NavLink to="/settings">
             <Settings size={14} className="ml-auto text-slate-400 cursor-pointer hover:text-slate-600 transition-colors shrink-0" />

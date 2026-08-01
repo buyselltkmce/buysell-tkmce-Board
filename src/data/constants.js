@@ -54,8 +54,8 @@ export const EPICS = [
 ];
 
 export const TEAM_MEMBERS = [
-  { id: "u1", name: "Haroshin", role: "Lead Developer & UI/UX", avatar: "HK", color: "#7C3AED" },
-  { id: "u2", name: "Arjun PK", role: "BA & Lead DevOps",       avatar: "AP", color: "#EC4899" },
+  { id: "u1", name: "Haroshin K K", email: "Haro09a@gmail.com",    role: "Lead Developer & UI/UX (Admin)", avatar: "HK", color: "#7C3AED" },
+  { id: "u2", name: "Arjun P K",     email: "arjunpk8921@gmail.com", role: "BA & Lead DevOps (Admin)",      avatar: "AP", color: "#EC4899" },
 ];
 
 export const COLUMNS = [

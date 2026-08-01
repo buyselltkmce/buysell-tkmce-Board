@@ -56,6 +56,9 @@ export default function TeamPage() {
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-bold text-slate-900">{member.name}</h3>
                   <p className="text-xs text-slate-500 mt-0.5">{member.role}</p>
+                  {member.email && (
+                    <p className="text-[11px] text-blue-600 font-medium truncate mt-0.5">{member.email}</p>
+                  )}
                   <div className="flex items-center gap-1 mt-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
                     <span className="text-[10px] text-slate-400">Online</span>
@@ -106,9 +109,15 @@ export default function TeamPage() {
 
               {/* Links */}
               <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
-                <button className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
-                  <Mail size={13} />
-                </button>
+                {member.email ? (
+                  <a href={`mailto:${member.email}`} title={`Email ${member.name}`} className="p-1.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                    <Mail size={13} />
+                  </a>
+                ) : (
+                  <button className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+                    <Mail size={13} />
+                  </button>
+                )}
                 <button className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
                   <GitBranch size={13} />
                 </button>
