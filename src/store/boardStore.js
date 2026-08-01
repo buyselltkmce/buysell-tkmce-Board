@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { INITIAL_TASKS } from "../data/constants";
+import { INITIAL_TASKS, EPICS } from "../data/constants";
 import {
   fetchTasksFromSupabase,
   saveTaskToSupabase,
@@ -25,6 +25,7 @@ export const useBoardStore = create(
   persist(
     (set, get) => ({
       tasks: INITIAL_TASKS,
+      epics: EPICS,
       filters: DEFAULT_FILTERS,
       viewMode: "list",
       selectedTask: null,
@@ -32,6 +33,14 @@ export const useBoardStore = create(
       isCreateModalOpen: false,
       createTaskStatus: null,
       isCloudSynced: isSupabaseConfigured,
+
+      updateEpic: (epicId, updates) => {
+        set((s) => ({
+          epics: (s.epics || EPICS).map((e) =>
+            e.id === epicId ? { ...e, ...updates } : e
+          ),
+        }));
+      },
 
       // ── Cloud Sync Initialization ──────────────────────
       initCloudSync: async () => {
@@ -264,7 +273,7 @@ export const useBoardStore = create(
     {
       name: "buysell-board-v3",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ tasks: state.tasks }),
+      partialize: (state) => ({ tasks: state.tasks, epics: state.epics }),
     }
   )
 );
