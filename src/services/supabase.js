@@ -39,6 +39,9 @@ export const supabase = isSupabaseConfigured
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
   );
 
+  -- Grant all privileges on the tasks table to anonymous and authenticated users for simple demo access:
+  GRANT ALL ON public.tasks TO anon, authenticated;
+
   -- Enable Row Level Security (RLS) and allow public access for demo:
   ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
   CREATE POLICY "Allow public read/write access" ON tasks FOR ALL USING (true) WITH CHECK (true);

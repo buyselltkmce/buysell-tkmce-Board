@@ -33,6 +33,7 @@ export const useBoardStore = create(
       isCreateModalOpen: false,
       createTaskStatus: null,
       isCloudSynced: isSupabaseConfigured,
+      isLoadingTasks: false,
 
       updateEpic: (epicId, updates) => {
         set((s) => ({
@@ -46,11 +47,13 @@ export const useBoardStore = create(
       initCloudSync: async () => {
         if (!isSupabaseConfigured) return;
 
+        set({ isLoadingTasks: true });
         // 1. Fetch remote tasks
         const remoteTasks = await fetchTasksFromSupabase();
         if (remoteTasks !== null) {
           set({ tasks: remoteTasks, isCloudSynced: true });
         }
+        set({ isLoadingTasks: false });
 
         // 2. Subscribe to real-time changes
         subscribeToSupabaseRealtime((event, task) => {

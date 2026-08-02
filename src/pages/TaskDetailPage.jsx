@@ -22,7 +22,7 @@ import HistorySection from "../components/TaskModal/HistorySection";
 export default function TaskDetailPage() {
   const { taskId } = useParams();
   const navigate   = useNavigate();
-  const { tasks, updateTask, deleteTask, epics: storeEpics, deleteComment, editComment, deleteWorklog, editWorklog } = useBoardStore();
+  const { tasks, isLoadingTasks, updateTask, deleteTask, epics: storeEpics, deleteComment, editComment, deleteWorklog, editWorklog } = useBoardStore();
   const epicsList = storeEpics || EPICS;
 
   const task = tasks.find((t) => t.id === taskId);
@@ -50,6 +50,15 @@ export default function TaskDetailPage() {
       setDesc(task.description);
     }
   }, [task?.id]);
+
+  if (isLoadingTasks) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4 text-slate-400">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm font-semibold text-slate-600">Loading task details...</p>
+      </div>
+    );
+  }
 
   if (!task) {
     return (
