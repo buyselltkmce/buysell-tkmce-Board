@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Activity, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
+import { Activity, ChevronDown, ChevronUp } from "lucide-react";
 import { formatDate } from "../../utils/helpers";
 import { TEAM_MEMBERS } from "../../data/constants";
 
@@ -107,21 +107,22 @@ export default function HistorySection({ activityLog = [] }) {
 
                     {/* Before → After diff row */}
                     {hasDiff && (
-                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                      <div className="flex flex-col gap-1.5 mt-2">
                         {log.before !== null && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-red-50 text-red-600 border border-red-200 rounded-lg px-2.5 py-1 max-w-[180px] truncate">
-                            <span className="shrink-0">Before:</span>
-                            <span className="truncate">{log.before}</span>
-                          </span>
-                        )}
-                        {log.before !== null && log.after !== null && (
-                          <ArrowRight size={13} className="text-slate-400 shrink-0" />
+                          <div className="flex items-start gap-2">
+                            <span className="text-[10px] font-bold text-red-500 uppercase shrink-0 mt-0.5 w-12">Before</span>
+                            <span className="text-[11px] font-semibold bg-red-50 text-red-700 border border-red-200 rounded-lg px-2.5 py-1.5 break-words whitespace-pre-wrap leading-relaxed flex-1">
+                              {log.before}
+                            </span>
+                          </div>
                         )}
                         {log.after !== null && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-green-50 text-green-700 border border-green-200 rounded-lg px-2.5 py-1 max-w-[180px] truncate">
-                            <span className="shrink-0">After:</span>
-                            <span className="truncate">{log.after}</span>
-                          </span>
+                          <div className="flex items-start gap-2">
+                            <span className="text-[10px] font-bold text-green-600 uppercase shrink-0 mt-0.5 w-12">After</span>
+                            <span className="text-[11px] font-semibold bg-green-50 text-green-700 border border-green-200 rounded-lg px-2.5 py-1.5 break-words whitespace-pre-wrap leading-relaxed flex-1">
+                              {log.after}
+                            </span>
+                          </div>
                         )}
                       </div>
                     )}

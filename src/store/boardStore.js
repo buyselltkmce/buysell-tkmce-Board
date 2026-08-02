@@ -137,14 +137,11 @@ export const useBoardStore = create(
             logs.unshift(mkLog("Title", "updated title", task.title, updates.title));
           }
           if (updates.description !== undefined && updates.description !== task.description) {
-            const oldSnip = (task.description || "").slice(0, 40) + ((task.description || "").length > 40 ? "…" : "");
-            const newSnip = (updates.description || "").slice(0, 40) + ((updates.description || "").length > 40 ? "…" : "");
-            logs.unshift(mkLog("Description", "updated description", oldSnip || "(empty)", newSnip || "(empty)"));
+            logs.unshift(mkLog("Description", "updated description", task.description || "(empty)", updates.description || "(empty)"));
           }
           if (updates.commentList && updates.commentList.length > (task.commentList?.length || 0)) {
             const lastComment = updates.commentList[updates.commentList.length - 1];
-            const snippet = lastComment.content.length > 50 ? lastComment.content.slice(0, 50) + "…" : lastComment.content;
-            logs.unshift(mkLog("Comment", "posted a comment", null, `"${snippet}"`));
+            logs.unshift(mkLog("Comment", "posted a comment", null, lastComment.content));
           }
           if (updates.checklist && Array.isArray(updates.checklist)) {
             const oldLen = task.checklist?.length || 0;
