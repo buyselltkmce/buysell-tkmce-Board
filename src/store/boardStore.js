@@ -70,14 +70,27 @@ export const useBoardStore = create(
       },
 
       // ── Actions ───────────────────────────────────────
-      addTask: (taskData) => {
+      addTask: (taskData, actorInfo) => {
         const now = new Date().toISOString();
         const count = get().tasks.length + 1;
+        const currentActor = actorInfo || TEAM_MEMBERS[0];
+        const initialLog = [
+          {
+            id: `al-${Date.now()}`,
+            actor: currentActor,
+            action: "created this task",
+            createdAt: now,
+          },
+        ];
+
         const newTask = {
           ticketKey: `BSL-${100 + count}`,
           epicId: taskData.epicId || "BSL-EPIC-1",
           cycleId: taskData.cycleId || "cycle-3",
+          checklist: [],
+          commentList: [],
           ...taskData,
+          activityLog: taskData.activityLog?.length ? taskData.activityLog : initialLog,
           id: `task-${Date.now()}`,
           createdAt: now,
           updatedAt: now,
@@ -87,15 +100,80 @@ export const useBoardStore = create(
         saveTaskToSupabase(newTask); // Cloud sync
       },
 
-      updateTask: (id, updates) => {
+      updateTask: (id, updates, actorInfo) => {
         const now = new Date().toISOString();
-        set((s) => ({
-          tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...updates, updatedAt: now } : t)),
-          selectedTask:
-            s.selectedTask?.id === id
-              ? { ...s.selectedTask, ...updates, updatedAt: now }
-              : s.selectedTask,
-        }));
+        set((s) => {
+          const task = s.tasks.find((t) => t.id === id);
+          if (!task) return s;
+
+          const currentActor = actorInfo || TEAM_MEMBERS[0];
+          const logs = [...(task.activityLog || [])];
+
+          // Auto-generate activity logs for updates
+          if (updates.status && updates.status !== task.status) {
+            const oldCol = COLUMNS.find((c) => c.id === task.status)?.title || task.status;
+            const newCol = COLUMNS.find((c) => c.id === updates.status)?.title || updates.status;
+            logs.unshift({
+              id: `al-${Date.now()}-${Math.random()}`,
+              actor: currentActor,
+              action: `changed status from "${oldCol}" to "${newCol}"`,
+              createdAt: now,
+            });
+          }
+          if (updates.priority && updates.priority !== task.priority) {
+            logs.unshift({
+              id: `al-${Date.now()}-${Math.random()}`,
+              actor: currentActor,
+              action: `changed priority to "${updates.priority.toUpperCase()}"`,
+              createdAt: now,
+            });
+          }
+          if (updates.assignee && updates.assignee.id !== task.assignee?.id) {
+            logs.unshift({
+              id: `al-${Date.now()}-${Math.random()}`,
+              actor: currentActor,
+              action: `reassigned task to ${updates.assignee.name}`,
+              createdAt: now,
+            });
+          }
+          if (updates.title && updates.title !== task.title) {
+            logs.unshift({
+              id: `al-${Date.now()}-${Math.random()}`,
+              actor: currentActor,
+              action: `updated title to "${updates.title}"`,
+              createdAt: now,
+            });
+          }
+          if (updates.description !== undefined && updates.description !== task.description) {
+            logs.unshift({
+              id: `al-${Date.now()}-${Math.random()}`,
+              actor: currentActor,
+              action: `updated task description & specification`,
+              createdAt: now,
+            });
+          }
+          if (updates.commentList && updates.commentList.length > (task.commentList?.length || 0)) {
+            const lastComment = updates.commentList[updates.commentList.length - 1];
+            logs.unshift({
+              id: `al-${Date.now()}-${Math.random()}`,
+              actor: lastComment.author || currentActor,
+              action: `posted a comment: "${lastComment.content.length > 35 ? lastComment.content.slice(0, 35) + '...' : lastComment.content}"`,
+              createdAt: now,
+            });
+          }
+
+          const updatedTask = {
+            ...task,
+            ...updates,
+            activityLog: logs,
+            updatedAt: now,
+          };
+
+          return {
+            tasks: s.tasks.map((t) => (t.id === id ? updatedTask : t)),
+            selectedTask: s.selectedTask?.id === id ? updatedTask : s.selectedTask,
+          };
+        });
         updateTaskInSupabase(id, updates); // Cloud sync
       },
 
@@ -108,13 +186,35 @@ export const useBoardStore = create(
         deleteTaskFromSupabase(id); // Cloud sync
       },
 
-      moveTask: (taskId, newStatus) => {
+      moveTask: (taskId, newStatus, actorInfo) => {
         const now = new Date().toISOString();
-        set((s) => ({
-          tasks: s.tasks.map((t) =>
-            t.id === taskId ? { ...t, status: newStatus, updatedAt: now } : t
-          ),
-        }));
+        set((s) => {
+          const task = s.tasks.find((t) => t.id === taskId);
+          if (!task) return s;
+
+          const currentActor = actorInfo || TEAM_MEMBERS[0];
+          const oldCol = COLUMNS.find((c) => c.id === task.status)?.title || task.status;
+          const newCol = COLUMNS.find((c) => c.id === newStatus)?.title || newStatus;
+
+          const newLog = {
+            id: `al-${Date.now()}`,
+            actor: currentActor,
+            action: `moved status from "${oldCol}" to "${newCol}"`,
+            createdAt: now,
+          };
+
+          const updatedTask = {
+            ...task,
+            status: newStatus,
+            activityLog: [newLog, ...(task.activityLog || [])],
+            updatedAt: now,
+          };
+
+          return {
+            tasks: s.tasks.map((t) => (t.id === taskId ? updatedTask : t)),
+            selectedTask: s.selectedTask?.id === taskId ? updatedTask : s.selectedTask,
+          };
+        });
         updateTaskInSupabase(taskId, { status: newStatus }); // Cloud sync
       },
 
@@ -150,13 +250,13 @@ export const useBoardStore = create(
           };
 
           const updatedLog = [
-            ...(task.activityLog || []),
             {
               id: `al-${Date.now()}`,
               actor: author || { id: "u1", name: "You", avatar: "YO", color: "#2563EB" },
-              action: `logged ${hours}h (${category})`,
+              action: `logged ${hours}h (${category})${note ? `: "${note}"` : ""}`,
               createdAt: now,
             },
+            ...(task.activityLog || []),
           ];
 
           const updates = { tempo: updatedTempo, activityLog: updatedLog, updatedAt: now };
@@ -187,7 +287,16 @@ export const useBoardStore = create(
           };
 
           const updatedLinks = [...existingLinks, newLink];
-          const updates = { linkedTasks: updatedLinks, updatedAt: now };
+          const updatedLog = [
+            {
+              id: `al-${Date.now()}`,
+              actor: TEAM_MEMBERS[0],
+              action: `linked work item ${targetTask.ticketKey || targetTask.title} (${relationship})`,
+              createdAt: now,
+            },
+            ...(task.activityLog || []),
+          ];
+          const updates = { linkedTasks: updatedLinks, activityLog: updatedLog, updatedAt: now };
 
           return {
             tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, ...updates } : t)),
@@ -203,7 +312,16 @@ export const useBoardStore = create(
           if (!task) return s;
 
           const updatedLinks = (task.linkedTasks || []).filter((l) => l.id !== targetTaskId);
-          const updates = { linkedTasks: updatedLinks, updatedAt: now };
+          const updatedLog = [
+            {
+              id: `al-${Date.now()}`,
+              actor: TEAM_MEMBERS[0],
+              action: `removed linked work item ${targetTaskId}`,
+              createdAt: now,
+            },
+            ...(task.activityLog || []),
+          ];
+          const updates = { linkedTasks: updatedLinks, activityLog: updatedLog, updatedAt: now };
 
           return {
             tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, ...updates } : t)),
