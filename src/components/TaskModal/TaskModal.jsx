@@ -17,11 +17,6 @@ import TimeLogModal from "./TimeLogModal";
 import LinkedWorkItems from "./LinkedWorkItems";
 import IntegrationsModal from "./IntegrationsModal";
 
-const INITIAL_ATTACHMENTS = [
-  { id: "att-1", name: "Buysell_Order_Matching_Engine_v1.pdf", size: "2.4 MB", type: "pdf", url: "#", uploadedAt: "2026-07-20T14:30:00Z" },
-  { id: "att-2", name: "Trading_UI_Figma_Design_Spec.png", size: "4.8 MB", type: "image", url: "#", uploadedAt: "2026-07-22T09:15:00Z" },
-];
-
 export default function TaskModal() {
   const { selectedTask, isModalOpen, closeTaskModal, updateTask, deleteTask, epics: storeEpics } = useBoardStore();
   const epicsList = storeEpics || EPICS;
@@ -31,7 +26,6 @@ export default function TaskModal() {
   const [editingDesc, setEditingDesc]     = useState(false);
   const [newComment, setNewComment]       = useState("");
   const [newItem, setNewItem]             = useState("");
-  const [attachments, setAttachments]     = useState(INITIAL_ATTACHMENTS);
 
   // Modals & Popovers state
   const [showTimeLogModal, setShowTimeLogModal]       = useState(false);
@@ -60,12 +54,13 @@ export default function TaskModal() {
   if (!isModalOpen || !selectedTask) return null;
 
   const task = selectedTask;
+  const attachments = Array.isArray(task.attachmentsList) ? task.attachmentsList : [];
   const pCfg = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG.medium;
   const col  = COLUMNS.find((c) => c.id === task.status);
-  const cycleObj = CYCLES.find((c) => c.id === (task.cycleId || "cycle-2"));
+  const cycleObj = CYCLES.find((c) => c.id === (task.cycleId || "cycle-3"));
   const epicObj = epicsList.find((e) => e.id === (task.epicId || "BSL-EPIC-1")) || epicsList[0];
   const due  = formatDueDate(task.dueDate);
-  const checkedCount = task.checklist.filter((c) => c.completed).length;
+  const checkedCount = (task.checklist || []).filter((c) => c.completed).length;
 
   const saveTitle = () => {
     if (title.trim()) updateTask(task.id, { title: title.trim() });
@@ -78,8 +73,9 @@ export default function TaskModal() {
   };
 
   const toggleChecklist = (itemId) => {
+    const list = Array.isArray(task.checklist) ? task.checklist : [];
     updateTask(task.id, {
-      checklist: task.checklist.map((c) =>
+      checklist: list.map((c) =>
         c.id === itemId ? { ...c, completed: !c.completed } : c
       ),
     });
@@ -87,8 +83,9 @@ export default function TaskModal() {
 
   const addChecklistItem = () => {
     if (!newItem.trim()) return;
+    const list = Array.isArray(task.checklist) ? task.checklist : [];
     updateTask(task.id, {
-      checklist: [...task.checklist, { id: generateId(), title: newItem.trim(), completed: false }],
+      checklist: [...list, { id: generateId(), title: newItem.trim(), completed: false }],
     });
     setNewItem("");
   };
@@ -97,8 +94,9 @@ export default function TaskModal() {
     const textToPost = customText || newComment;
     if (!textToPost.trim()) return;
     const me = { id: "you", name: "You", avatar: "YO", color: "#2563EB" };
+    const list = Array.isArray(task.commentList) ? task.commentList : [];
     updateTask(task.id, {
-      commentList: [...task.commentList, {
+      commentList: [...list, {
         id: generateId(), author: me, content: textToPost.trim(), createdAt: new Date().toISOString(),
       }],
       comments: (task.comments || 0) + 1,
@@ -119,13 +117,13 @@ export default function TaskModal() {
       uploadedAt: new Date().toISOString(),
     };
 
-    setAttachments((prev) => [newAtt, ...prev]);
-    updateTask(task.id, { attachments: (task.attachments || 0) + 1 });
+    const updatedList = [newAtt, ...attachments];
+    updateTask(task.id, { attachmentsList: updatedList, attachments: updatedList.length });
   };
 
   const handleDeleteAttachment = (attId) => {
-    setAttachments((prev) => prev.filter((a) => a.id !== attId));
-    updateTask(task.id, { attachments: Math.max(0, (task.attachments || 1) - 1) });
+    const updatedList = attachments.filter((a) => a.id !== attId);
+    updateTask(task.id, { attachmentsList: updatedList, attachments: updatedList.length });
   };
 
   const handleBackdropClick = (e) => {
@@ -624,6 +622,35 @@ export default function TaskModal() {
             {/* DETAILS METADATA PANEL (Image 1, 2, 5) */}
             <div className="space-y-3">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Details Panel</p>
+
+              {/* Status */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-semibold text-slate-500 uppercase">Status</label>
+                <select
+                  value={task.status}
+                  onChange={(e) => updateTask(task.id, { status: e.target.value })}
+                  className="w-full text-xs font-bold border border-slate-200 rounded-lg p-2 bg-slate-50 outline-none cursor-pointer"
+                  style={{ color: col?.color }}
+                >
+                  {COLUMNS.map((c) => (
+                    <option key={c.id} value={c.id}>{c.emoji} {c.title}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Branch Epic */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-semibold text-slate-500 uppercase">Branch Epic</label>
+                <select
+                  value={task.epicId || "BSL-EPIC-1"}
+                  onChange={(e) => updateTask(task.id, { epicId: e.target.value })}
+                  className="w-full text-xs font-bold border border-purple-200 rounded-lg p-2 bg-purple-50 text-purple-700 outline-none cursor-pointer"
+                >
+                  {epicsList.map((e) => (
+                    <option key={e.id} value={e.id}>{e.key}: {e.title}</option>
+                  ))}
+                </select>
+              </div>
 
               {/* Assignee & Assign to Me */}
               <div className="space-y-1">

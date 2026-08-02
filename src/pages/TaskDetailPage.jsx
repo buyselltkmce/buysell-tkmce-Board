@@ -18,12 +18,6 @@ import TimeLogModal from "../components/TaskModal/TimeLogModal";
 import LinkedWorkItems from "../components/TaskModal/LinkedWorkItems";
 import IntegrationsModal from "../components/TaskModal/IntegrationsModal";
 
-const INITIAL_ATTACHMENTS = [
-  { id: "att-1", name: "Buysell_Order_Matching_Engine_v1.pdf", size: "2.4 MB", type: "pdf", url: "#", uploadedAt: "2026-07-20T14:30:00Z" },
-  { id: "att-2", name: "Trading_UI_Figma_Design_Spec.png", size: "4.8 MB", type: "image", url: "#", uploadedAt: "2026-07-22T09:15:00Z" },
-  { id: "att-3", name: "Order_Book_Queue_Data_Structure.rs", size: "45 KB", type: "code", url: "#", uploadedAt: "2026-07-25T11:00:00Z" },
-];
-
 export default function TaskDetailPage() {
   const { taskId } = useParams();
   const navigate   = useNavigate();
@@ -38,7 +32,6 @@ export default function TaskDetailPage() {
   const [desc, setDesc]                   = useState("");
   const [newComment, setNewComment]       = useState("");
   const [newItem, setNewItem]             = useState("");
-  const [attachments, setAttachments]     = useState(INITIAL_ATTACHMENTS);
 
   // Submodals & Agent state
   const [showTimeLogModal, setShowTimeLogModal]       = useState(false);
@@ -68,6 +61,7 @@ export default function TaskDetailPage() {
     );
   }
 
+  const attachments = Array.isArray(task.attachmentsList) ? task.attachmentsList : [];
   const checklist = Array.isArray(task.checklist) ? task.checklist : [];
   const commentList = Array.isArray(task.commentList) ? task.commentList : [];
   const assignee = task.assignee || TEAM_MEMBERS[0];
@@ -75,7 +69,7 @@ export default function TaskDetailPage() {
 
   const pCfg = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG.medium;
   const col  = COLUMNS.find((c) => c.id === task.status) || COLUMNS[0];
-  const cycleObj = CYCLES.find((c) => c.id === (task.cycleId || "cycle-2")) || CYCLES[1];
+  const cycleObj = CYCLES.find((c) => c.id === (task.cycleId || "cycle-3")) || CYCLES[2];
   const due  = formatDueDate(task.dueDate);
 
   const checkedCount = checklist.filter((c) => c.completed).length;
@@ -150,13 +144,13 @@ export default function TaskDetailPage() {
       uploadedAt: new Date().toISOString(),
     };
 
-    setAttachments((prev) => [newAtt, ...prev]);
-    updateTask(task.id, { attachments: (task.attachments || 0) + 1 });
+    const updatedList = [newAtt, ...attachments];
+    updateTask(task.id, { attachmentsList: updatedList, attachments: updatedList.length });
   };
 
   const handleDeleteAttachment = (attId) => {
-    setAttachments((prev) => prev.filter((a) => a.id !== attId));
-    updateTask(task.id, { attachments: Math.max(0, (task.attachments || 1) - 1) });
+    const updatedList = attachments.filter((a) => a.id !== attId);
+    updateTask(task.id, { attachmentsList: updatedList, attachments: updatedList.length });
   };
 
   const handleDelete = () => {
