@@ -17,6 +17,7 @@ import { formatDate, formatDueDate, generateId } from "../utils/helpers";
 import TimeLogModal from "../components/TaskModal/TimeLogModal";
 import LinkedWorkItems from "../components/TaskModal/LinkedWorkItems";
 import IntegrationsModal from "../components/TaskModal/IntegrationsModal";
+import HistorySection from "../components/TaskModal/HistorySection";
 
 export default function TaskDetailPage() {
   const { taskId } = useParams();
@@ -554,43 +555,8 @@ export default function TaskDetailPage() {
             </div>
           </div>
 
-          {/* SECTION 7: ACTIVITY & AUDIT HISTORY */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Activity size={16} className="text-purple-600" />
-                Activity & Audit History ({(task.activityLog || []).length})
-              </h2>
-              <span className="text-xs text-slate-400">Who · What · When</span>
-            </div>
-
-            {(!task.activityLog || task.activityLog.length === 0) ? (
-              <p className="text-xs text-slate-400 italic py-2">No activity history recorded yet.</p>
-            ) : (
-              <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
-                {task.activityLog.map((log, idx) => {
-                  const actor = log.actor || TEAM_MEMBERS[0];
-                  return (
-                    <div key={log.id || idx} className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-start gap-3">
-                      <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 mt-0.5"
-                        style={{ background: actor.color || "#7C3AED" }}
-                      >
-                        {actor.avatar || "US"}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs font-semibold text-slate-800">{actor.name}</span>
-                          <span className="text-[10px] text-slate-400 font-mono">{formatDate(log.createdAt)}</span>
-                        </div>
-                        <p className="text-xs text-slate-600 mt-1">{log.action}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          {/* SECTION 7: ACTIVITY & AUDIT HISTORY (Collapsible) */}
+          <HistorySection activityLog={task.activityLog || []} />
 
         </div>
 

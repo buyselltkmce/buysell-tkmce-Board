@@ -109,136 +109,85 @@ export const useBoardStore = create(
           const currentActor = actorInfo || TEAM_MEMBERS[0];
           const logs = [...(task.activityLog || [])];
 
-          // Auto-generate activity logs for updates
+          const mkLog = (field, action, before, after) => ({
+            id: `al-${Date.now()}-${Math.random()}`,
+            actor: currentActor,
+            field,
+            action,
+            before: before ?? null,
+            after: after ?? null,
+            createdAt: now,
+          });
+
           if (updates.status && updates.status !== task.status) {
-            const oldCol = COLUMNS.find((c) => c.id === task.status)?.title || task.status;
-            const newCol = COLUMNS.find((c) => c.id === updates.status)?.title || updates.status;
-            logs.unshift({
-              id: `al-${Date.now()}-${Math.random()}`,
-              actor: currentActor,
-              action: `changed status from "${oldCol}" to "${newCol}"`,
-              createdAt: now,
-            });
+            const oldLabel = COLUMNS.find((c) => c.id === task.status)?.title || task.status;
+            const newLabel = COLUMNS.find((c) => c.id === updates.status)?.title || updates.status;
+            logs.unshift(mkLog("Status", "changed status", oldLabel, newLabel));
           }
           if (updates.priority && updates.priority !== task.priority) {
-            logs.unshift({
-              id: `al-${Date.now()}-${Math.random()}`,
-              actor: currentActor,
-              action: `changed priority to "${updates.priority.toUpperCase()}"`,
-              createdAt: now,
-            });
+            logs.unshift(mkLog("Priority", "changed priority", task.priority?.toUpperCase(), updates.priority.toUpperCase()));
           }
           if (updates.assignee && updates.assignee.id !== task.assignee?.id) {
-            logs.unshift({
-              id: `al-${Date.now()}-${Math.random()}`,
-              actor: currentActor,
-              action: `reassigned task to ${updates.assignee.name}`,
-              createdAt: now,
-            });
+            logs.unshift(mkLog("Assignee", "reassigned task", task.assignee?.name || "Unassigned", updates.assignee.name));
+          }
+          if (updates.reporter && updates.reporter.id !== task.reporter?.id) {
+            logs.unshift(mkLog("Reporter", "changed reporter", task.reporter?.name || "None", updates.reporter.name));
           }
           if (updates.title && updates.title !== task.title) {
-            logs.unshift({
-              id: `al-${Date.now()}-${Math.random()}`,
-              actor: currentActor,
-              action: `updated title to "${updates.title}"`,
-              createdAt: now,
-            });
+            logs.unshift(mkLog("Title", "updated title", task.title, updates.title));
           }
           if (updates.description !== undefined && updates.description !== task.description) {
-            logs.unshift({
-              id: `al-${Date.now()}-${Math.random()}`,
-              actor: currentActor,
-              action: `updated task description & specifications`,
-              createdAt: now,
-            });
+            const oldSnip = (task.description || "").slice(0, 40) + ((task.description || "").length > 40 ? "…" : "");
+            const newSnip = (updates.description || "").slice(0, 40) + ((updates.description || "").length > 40 ? "…" : "");
+            logs.unshift(mkLog("Description", "updated description", oldSnip || "(empty)", newSnip || "(empty)"));
           }
           if (updates.commentList && updates.commentList.length > (task.commentList?.length || 0)) {
             const lastComment = updates.commentList[updates.commentList.length - 1];
-            logs.unshift({
-              id: `al-${Date.now()}-${Math.random()}`,
-              actor: lastComment.author || currentActor,
-              action: `posted a comment: "${lastComment.content.length > 35 ? lastComment.content.slice(0, 35) + '...' : lastComment.content}"`,
-              createdAt: now,
-            });
+            const snippet = lastComment.content.length > 50 ? lastComment.content.slice(0, 50) + "…" : lastComment.content;
+            logs.unshift(mkLog("Comment", "posted a comment", null, `"${snippet}"`));
           }
           if (updates.checklist && Array.isArray(updates.checklist)) {
             const oldLen = task.checklist?.length || 0;
             if (updates.checklist.length > oldLen) {
               const newestItem = updates.checklist[updates.checklist.length - 1];
-              logs.unshift({
-                id: `al-${Date.now()}-${Math.random()}`,
-                actor: currentActor,
-                action: `added checklist item "${newestItem.title}"`,
-                createdAt: now,
-              });
+              logs.unshift(mkLog("Checklist", "added checklist item", null, `"${newestItem.title}"`));
             } else if (updates.checklist.length === oldLen) {
-              logs.unshift({
-                id: `al-${Date.now()}-${Math.random()}`,
-                actor: currentActor,
-                action: `updated checklist completion status`,
-                createdAt: now,
-              });
+              const changed = updates.checklist.find((ni, i) => ni.completed !== (task.checklist[i]?.completed));
+              if (changed) {
+                logs.unshift(mkLog("Checklist", `marked item ${changed.completed ? "complete" : "incomplete"}`, changed.completed ? "☐ Open" : "☑ Done", changed.completed ? "☑ Done" : "☐ Open"));
+              }
+            } else {
+              logs.unshift(mkLog("Checklist", "removed checklist item", `${oldLen} items`, `${updates.checklist.length} items`));
             }
           }
           if (updates.attachmentsList && Array.isArray(updates.attachmentsList)) {
             const oldLen = task.attachmentsList?.length || 0;
             if (updates.attachmentsList.length > oldLen) {
-              const newestFile = updates.attachmentsList[0];
-              logs.unshift({
-                id: `al-${Date.now()}-${Math.random()}`,
-                actor: currentActor,
-                action: `attached file "${newestFile.name}"`,
-                createdAt: now,
-              });
+              const f = updates.attachmentsList[0];
+              logs.unshift(mkLog("Attachment", "attached file", null, f.name));
             } else if (updates.attachmentsList.length < oldLen) {
-              logs.unshift({
-                id: `al-${Date.now()}-${Math.random()}`,
-                actor: currentActor,
-                action: `removed an attachment file`,
-                createdAt: now,
-              });
+              logs.unshift(mkLog("Attachment", "removed attachment", `${oldLen} files`, `${updates.attachmentsList.length} files`));
             }
           }
           if (updates.cycleId && updates.cycleId !== task.cycleId) {
-            const cycleName = CYCLES.find((c) => c.id === updates.cycleId)?.name || updates.cycleId;
-            logs.unshift({
-              id: `al-${Date.now()}-${Math.random()}`,
-              actor: currentActor,
-              action: `moved task to ${cycleName}`,
-              createdAt: now,
-            });
+            const oldC = CYCLES.find((c) => c.id === task.cycleId)?.name || task.cycleId || "None";
+            const newC = CYCLES.find((c) => c.id === updates.cycleId)?.name || updates.cycleId;
+            logs.unshift(mkLog("Cycle", "changed sprint cycle", oldC, newC));
+          }
+          if (updates.epicId && updates.epicId !== task.epicId) {
+            logs.unshift(mkLog("Epic", "changed epic", task.epicId || "None", updates.epicId));
           }
           if (updates.lob && updates.lob !== task.lob) {
-            logs.unshift({
-              id: `al-${Date.now()}-${Math.random()}`,
-              actor: currentActor,
-              action: `updated LOB Domain to ${updates.lob}`,
-              createdAt: now,
-            });
+            logs.unshift(mkLog("LOB Domain", "changed LOB domain", task.lob || "None", updates.lob));
           }
           if (updates.pi && updates.pi !== task.pi) {
-            logs.unshift({
-              id: `al-${Date.now()}-${Math.random()}`,
-              actor: currentActor,
-              action: `updated Program Increment to ${updates.pi}`,
-              createdAt: now,
-            });
+            logs.unshift(mkLog("PI", "changed program increment", task.pi || "None", updates.pi));
           }
           if (updates.fixVersion && updates.fixVersion !== task.fixVersion) {
-            logs.unshift({
-              id: `al-${Date.now()}-${Math.random()}`,
-              actor: currentActor,
-              action: `updated Fix Version to ${updates.fixVersion}`,
-              createdAt: now,
-            });
+            logs.unshift(mkLog("Fix Version", "changed fix version", task.fixVersion || "None", updates.fixVersion));
           }
           if (updates.dueDate && updates.dueDate !== task.dueDate) {
-            logs.unshift({
-              id: `al-${Date.now()}-${Math.random()}`,
-              actor: currentActor,
-              action: `updated due date to ${updates.dueDate}`,
-              createdAt: now,
-            });
+            logs.unshift(mkLog("Due Date", "changed due date", task.dueDate || "None", updates.dueDate));
           }
 
           const updatedTask = {
