@@ -76,7 +76,7 @@ export const useBoardStore = create(
         const newTask = {
           ticketKey: `BSL-${100 + count}`,
           epicId: taskData.epicId || "BSL-EPIC-1",
-          cycleId: "cycle-2",
+          cycleId: taskData.cycleId || "cycle-3",
           ...taskData,
           id: `task-${Date.now()}`,
           createdAt: now,

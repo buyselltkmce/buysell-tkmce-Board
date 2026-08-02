@@ -19,10 +19,11 @@ export default function CyclesPage() {
   const { tasks, updateTask, setFilters } = useBoardStore();
   const navigate = useNavigate();
 
-  const [selectedCycleId, setSelectedCycleId] = useState("cycle-2");
+  const activeCycleObj = CYCLES.find((c) => c.status === "active") || CYCLES[3];
+  const [selectedCycleId, setSelectedCycleId] = useState(activeCycleObj.id);
 
   // Active cycle object
-  const activeCycle = CYCLES.find((c) => c.id === selectedCycleId) || CYCLES[2];
+  const activeCycle = CYCLES.find((c) => c.id === selectedCycleId) || activeCycleObj;
 
   // Tasks in selected cycle
   const cycleTasks = tasks.filter((t) => t.cycleId === selectedCycleId);
