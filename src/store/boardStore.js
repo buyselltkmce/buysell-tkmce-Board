@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { INITIAL_TASKS, EPICS } from "../data/constants";
+import { INITIAL_TASKS, EPICS, TEAM_MEMBERS, COLUMNS, CYCLES } from "../data/constants";
 import {
   fetchTasksFromSupabase,
   saveTaskToSupabase,
