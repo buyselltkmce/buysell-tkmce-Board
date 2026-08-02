@@ -6,7 +6,7 @@ import {
   Paperclip, MessageSquare, Flag, Tag, User, ChevronDown,
   CheckSquare, Activity, Send, Circle, Edit3, UploadCloud,
   FileText, Image as ImageIcon, Download, Repeat, FileCode, GitBranch,
-  Globe, Sparkles, UserCheck, Layers, Award, ShieldAlert, Zap
+  Globe, Sparkles, UserCheck, Layers, Award, ShieldAlert, Zap, Copy
 } from "lucide-react";
 import { useBoardStore } from "../store/boardStore";
 import {
@@ -22,7 +22,7 @@ import HistorySection from "../components/TaskModal/HistorySection";
 export default function TaskDetailPage() {
   const { taskId } = useParams();
   const navigate   = useNavigate();
-  const { tasks, isLoadingTasks, updateTask, deleteTask, epics: storeEpics, deleteComment, editComment, deleteWorklog, editWorklog } = useBoardStore();
+  const { tasks, isLoadingTasks, updateTask, deleteTask, duplicateTask, epics: storeEpics, deleteComment, editComment, deleteWorklog, editWorklog } = useBoardStore();
   const epicsList = storeEpics || EPICS;
 
   const task = tasks.find((t) => t.id === taskId);
@@ -181,6 +181,13 @@ export default function TaskDetailPage() {
     }
   };
 
+  const handleDuplicate = () => {
+    const newId = duplicateTask(task.id);
+    if (newId) {
+      navigate(`/task/${newId}`);
+    }
+  };
+
   const epic = epicsList.find((e) => e.id === (task.epicId || "BSL-EPIC-1")) || epicsList[0];
   const ticketKey = task.ticketKey || `BSL-${task.id.slice(-3)}`;
 
@@ -264,6 +271,13 @@ export default function TaskDetailPage() {
               )}
             </AnimatePresence>
           </div>
+
+          <button
+            onClick={handleDuplicate}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-200 hover:border-blue-300 transition-colors font-medium mr-2"
+          >
+            <Copy size={13} /> Duplicate Task
+          </button>
 
           <button
             onClick={handleDelete}

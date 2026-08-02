@@ -214,6 +214,43 @@ export const useBoardStore = create(
         deleteTaskFromSupabase(id); // Cloud sync
       },
 
+      duplicateTask: (id) => {
+        const now = new Date().toISOString();
+        const tasks = get().tasks;
+        const taskToDuplicate = tasks.find((t) => t.id === id);
+        if (!taskToDuplicate) return null;
+
+        const count = tasks.length + 1;
+        const newId = `task-${Date.now()}`;
+        const duplicatedTask = {
+          ...taskToDuplicate,
+          id: newId,
+          ticketKey: `BSL-${100 + count}`,
+          title: `${taskToDuplicate.title} (Copy)`,
+          createdAt: now,
+          updatedAt: now,
+          commentList: [],
+          comments: 0,
+          checklist: (taskToDuplicate.checklist || []).map((item) => ({
+            ...item,
+            id: `item-${Date.now()}-${Math.random()}`,
+            completed: false,
+          })),
+          activityLog: [
+            {
+              id: `al-${Date.now()}`,
+              actor: TEAM_MEMBERS[0],
+              action: `duplicated this task from ${taskToDuplicate.ticketKey || taskToDuplicate.title}`,
+              createdAt: now,
+            },
+          ],
+        };
+
+        set((s) => ({ tasks: [...s.tasks, duplicatedTask] }));
+        saveTaskToSupabase(duplicatedTask); // Cloud sync
+        return newId;
+      },
+
       moveTask: (taskId, newStatus, actorInfo) => {
         const now = new Date().toISOString();
         set((s) => {
