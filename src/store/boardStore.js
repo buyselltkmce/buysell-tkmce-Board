@@ -293,6 +293,93 @@ export const useBoardStore = create(
         });
       },
 
+      deleteWorklog: (taskId, worklogId) => {
+        const now = new Date().toISOString();
+        set((s) => {
+          const task = s.tasks.find((t) => t.id === taskId);
+          if (!task) return s;
+          const wl = task.tempo?.worklogs?.find((w) => w.id === worklogId);
+          const removedHours = wl?.hours || 0;
+          const updatedWorklogs = (task.tempo?.worklogs || []).filter((w) => w.id !== worklogId);
+          const newLogged = Math.max(0, (task.tempo?.loggedHours || 0) - removedHours);
+          const newRemaining = Math.max(0, (task.tempo?.estimatedHours || 0) - newLogged);
+          const updatedTempo = { ...task.tempo, loggedHours: newLogged, remainingHours: newRemaining, worklogs: updatedWorklogs };
+          const updatedLog = [
+            { id: `al-${Date.now()}`, actor: TEAM_MEMBERS[0], field: "Worklog", action: "deleted worklog entry", before: `${removedHours}h`, after: null, createdAt: now },
+            ...(task.activityLog || []),
+          ];
+          const updates = { tempo: updatedTempo, activityLog: updatedLog, updatedAt: now };
+          return {
+            tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, ...updates } : t)),
+            selectedTask: s.selectedTask?.id === taskId ? { ...s.selectedTask, ...updates } : s.selectedTask,
+          };
+        });
+      },
+
+      editWorklog: (taskId, worklogId, patch) => {
+        const now = new Date().toISOString();
+        set((s) => {
+          const task = s.tasks.find((t) => t.id === taskId);
+          if (!task) return s;
+          const oldWl = task.tempo?.worklogs?.find((w) => w.id === worklogId);
+          const updatedWorklogs = (task.tempo?.worklogs || []).map((w) =>
+            w.id === worklogId ? { ...w, ...patch } : w
+          );
+          const totalLogged = updatedWorklogs.reduce((sum, w) => sum + (w.hours || 0), 0);
+          const newRemaining = Math.max(0, (task.tempo?.estimatedHours || 0) - totalLogged);
+          const updatedTempo = { ...task.tempo, loggedHours: totalLogged, remainingHours: newRemaining, worklogs: updatedWorklogs };
+          const updatedLog = [
+            { id: `al-${Date.now()}`, actor: TEAM_MEMBERS[0], field: "Worklog", action: "edited worklog entry", before: `${oldWl?.hours}h – ${oldWl?.note || oldWl?.category}`, after: `${patch.hours ?? oldWl?.hours}h – ${patch.note ?? oldWl?.note ?? patch.category ?? oldWl?.category}`, createdAt: now },
+            ...(task.activityLog || []),
+          ];
+          const updates = { tempo: updatedTempo, activityLog: updatedLog, updatedAt: now };
+          return {
+            tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, ...updates } : t)),
+            selectedTask: s.selectedTask?.id === taskId ? { ...s.selectedTask, ...updates } : s.selectedTask,
+          };
+        });
+      },
+
+      deleteComment: (taskId, commentId) => {
+        const now = new Date().toISOString();
+        set((s) => {
+          const task = s.tasks.find((t) => t.id === taskId);
+          if (!task) return s;
+          const comment = task.commentList?.find((c) => c.id === commentId);
+          const updatedList = (task.commentList || []).filter((c) => c.id !== commentId);
+          const updatedLog = [
+            { id: `al-${Date.now()}`, actor: TEAM_MEMBERS[0], field: "Comment", action: "deleted a comment", before: comment?.content || null, after: null, createdAt: now },
+            ...(task.activityLog || []),
+          ];
+          const updates = { commentList: updatedList, comments: updatedList.length, activityLog: updatedLog, updatedAt: now };
+          return {
+            tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, ...updates } : t)),
+            selectedTask: s.selectedTask?.id === taskId ? { ...s.selectedTask, ...updates } : s.selectedTask,
+          };
+        });
+      },
+
+      editComment: (taskId, commentId, newContent) => {
+        const now = new Date().toISOString();
+        set((s) => {
+          const task = s.tasks.find((t) => t.id === taskId);
+          if (!task) return s;
+          const oldComment = task.commentList?.find((c) => c.id === commentId);
+          const updatedList = (task.commentList || []).map((c) =>
+            c.id === commentId ? { ...c, content: newContent, editedAt: now } : c
+          );
+          const updatedLog = [
+            { id: `al-${Date.now()}`, actor: TEAM_MEMBERS[0], field: "Comment", action: "edited a comment", before: oldComment?.content || null, after: newContent, createdAt: now },
+            ...(task.activityLog || []),
+          ];
+          const updates = { commentList: updatedList, activityLog: updatedLog, updatedAt: now };
+          return {
+            tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, ...updates } : t)),
+            selectedTask: s.selectedTask?.id === taskId ? { ...s.selectedTask, ...updates } : s.selectedTask,
+          };
+        });
+      },
+
       addLinkedTask: (taskId, targetTask, relationship) => {
         const now = new Date().toISOString();
         set((s) => {

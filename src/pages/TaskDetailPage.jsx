@@ -22,7 +22,7 @@ import HistorySection from "../components/TaskModal/HistorySection";
 export default function TaskDetailPage() {
   const { taskId } = useParams();
   const navigate   = useNavigate();
-  const { tasks, updateTask, deleteTask, epics: storeEpics } = useBoardStore();
+  const { tasks, updateTask, deleteTask, epics: storeEpics, deleteComment, editComment, deleteWorklog, editWorklog } = useBoardStore();
   const epicsList = storeEpics || EPICS;
 
   const task = tasks.find((t) => t.id === taskId);
@@ -34,11 +34,15 @@ export default function TaskDetailPage() {
   const [newComment, setNewComment]       = useState("");
   const [newItem, setNewItem]             = useState("");
 
-  // Submodals & Agent state
-  const [showTimeLogModal, setShowTimeLogModal]       = useState(false);
+  const [showTimeLogModal, setShowTimeLogModal]         = useState(false);
   const [showIntegrationsModal, setShowIntegrationsModal] = useState(false);
-  const [showAgentMenu, setShowAgentMenu]             = useState(false);
-  const [includeSubtasks, setIncludeSubtasks]         = useState(true);
+  const [showAgentMenu, setShowAgentMenu]               = useState(false);
+  const [includeSubtasks, setIncludeSubtasks]           = useState(true);
+  const [editingCommentId, setEditingCommentId]         = useState(null);
+  const [editingCommentText, setEditingCommentText]     = useState("");
+  const [editingWorklogId, setEditingWorklogId]         = useState(null);
+  const [editingWorklogHours, setEditingWorklogHours]   = useState("");
+  const [editingWorklogNote, setEditingWorklogNote]     = useState("");
 
   useEffect(() => {
     if (task) {
@@ -116,6 +120,13 @@ export default function TaskDetailPage() {
       checklist: [...list, { id: generateId(), title: newItem.trim(), completed: false }],
     });
     setNewItem("");
+  };
+
+  const removeChecklistItem = (itemId) => {
+    const list = Array.isArray(task.checklist) ? task.checklist : [];
+    updateTask(task.id, {
+      checklist: list.filter((c) => c.id !== itemId),
+    });
   };
 
   const addComment = (customText) => {
@@ -377,17 +388,29 @@ export default function TaskDetailPage() {
               {checklist.map((item) => (
                 <div
                   key={item.id}
-                  onClick={() => toggleChecklist(item.id)}
-                  className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group"
+                  className="flex items-center gap-3 p-3 rounded-xl border border-slate-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all group"
                 >
-                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all ${
-                    item.completed ? "bg-green-500 border-green-500" : "border-slate-300 group-hover:border-blue-400"
-                  }`}>
+                  <div
+                    onClick={() => toggleChecklist(item.id)}
+                    className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+                      item.completed ? "bg-green-500 border-green-500" : "border-slate-300 group-hover:border-blue-400"
+                    }`}
+                  >
                     {item.completed && <Check size={11} className="text-white" />}
                   </div>
-                  <span className={`text-sm transition-all ${item.completed ? "line-through text-slate-400" : "text-slate-700"}`}>
+                  <span
+                    onClick={() => toggleChecklist(item.id)}
+                    className={`text-sm transition-all flex-1 cursor-pointer ${item.completed ? "line-through text-slate-400" : "text-slate-700"}`}
+                  >
                     {item.title}
                   </span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); removeChecklistItem(item.id); }}
+                    className="opacity-0 group-hover:opacity-100 p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shrink-0"
+                    title="Remove item"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </div>
               ))}
             </div>
@@ -427,22 +450,76 @@ export default function TaskDetailPage() {
             ) : (
               <div className="space-y-2.5">
                 {tempo.worklogs.map((wl) => (
-                  <div key={wl.id} className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 flex items-start justify-between">
-                    <div className="flex items-start gap-3 min-w-0">
-                      <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 mt-0.5"
-                        style={{ background: wl.author.color }}
-                      >
-                        {wl.author.avatar}
+                  <div key={wl.id} className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 group">
+                    {editingWorklogId === wl.id ? (
+                      <div className="space-y-2">
+                        <div className="flex gap-3">
+                          <div className="flex-1">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase">Hours</label>
+                            <input
+                              type="number" min="0.25" step="0.25"
+                              value={editingWorklogHours}
+                              onChange={(e) => setEditingWorklogHours(e.target.value)}
+                              className="w-full text-xs border border-blue-300 rounded-xl px-3 py-2 outline-none mt-1"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase">Note</label>
+                            <input
+                              type="text"
+                              value={editingWorklogNote}
+                              onChange={(e) => setEditingWorklogNote(e.target.value)}
+                              className="w-full text-xs border border-blue-300 rounded-xl px-3 py-2 outline-none mt-1"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => { editWorklog(task.id, wl.id, { hours: parseFloat(editingWorklogHours) || wl.hours, note: editingWorklogNote }); setEditingWorklogId(null); }}
+                            className="px-3 py-1.5 bg-blue-600 text-white rounded-xl text-xs font-semibold hover:bg-blue-700 transition-colors"
+                          >
+                            Save Changes
+                          </button>
+                          <button onClick={() => setEditingWorklogId(null)} className="px-3 py-1.5 text-slate-600 hover:bg-slate-100 rounded-xl text-xs transition-colors">
+                            Cancel
+                          </button>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-slate-800">
-                          {wl.author.name} logged <span className="font-bold text-blue-600">{wl.hours}h</span>
-                        </p>
-                        <p className="text-[10px] text-slate-400">{wl.category} · {wl.date}</p>
-                        {wl.note && <p className="text-xs text-slate-600 mt-1 italic">{wl.note}</p>}
+                    ) : (
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3 min-w-0">
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 mt-0.5"
+                            style={{ background: wl.author?.color || "#2563EB" }}
+                          >
+                            {wl.author?.avatar || "US"}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-slate-800">
+                              {wl.author?.name} logged <span className="font-bold text-blue-600">{wl.hours}h</span>
+                            </p>
+                            <p className="text-[10px] text-slate-400">{wl.category} · {wl.date}</p>
+                            {wl.note && <p className="text-xs text-slate-600 mt-1 italic">{wl.note}</p>}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                          <button
+                            onClick={() => { setEditingWorklogId(wl.id); setEditingWorklogHours(String(wl.hours)); setEditingWorklogNote(wl.note || ""); }}
+                            className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Edit"
+                          >
+                            <Edit3 size={13} />
+                          </button>
+                          <button
+                            onClick={() => deleteWorklog(task.id, wl.id)}
+                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -515,7 +592,7 @@ export default function TaskDetailPage() {
 
             <div className="space-y-4">
               {commentList.map((c) => (
-                <div key={c.id} className="flex gap-3">
+                <div key={c.id} className="flex gap-3 group">
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 mt-0.5 shadow-sm"
                     style={{ background: c.author?.color || "#2563EB" }}
@@ -523,13 +600,59 @@ export default function TaskDetailPage() {
                     {c.author?.avatar || "US"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold text-slate-800">{c.author?.name || "User"}</span>
-                      <span className="text-[10px] text-slate-400">{formatDate(c.createdAt)}</span>
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-slate-800">{c.author?.name || "User"}</span>
+                        <span className="text-[10px] text-slate-400">{formatDate(c.createdAt)}</span>
+                        {c.editedAt && <span className="text-[10px] text-slate-400 italic">(edited)</span>}
+                      </div>
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => { setEditingCommentId(c.id); setEditingCommentText(c.content); }}
+                          className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Edit comment"
+                        >
+                          <Edit3 size={13} />
+                        </button>
+                        <button
+                          onClick={() => deleteComment(task.id, c.id)}
+                          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete comment"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
                     </div>
-                    <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
-                      {c.content}
-                    </p>
+                    {editingCommentId === c.id ? (
+                      <div className="space-y-2">
+                        <textarea
+                          autoFocus
+                          value={editingCommentText}
+                          onChange={(e) => setEditingCommentText(e.target.value)}
+                          rows={3}
+                          className="w-full text-xs border border-blue-300 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => { editComment(task.id, c.id, editingCommentText.trim()); setEditingCommentId(null); }}
+                            disabled={!editingCommentText.trim()}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 disabled:opacity-40 text-white text-xs rounded-xl hover:bg-blue-700 transition-colors font-semibold"
+                          >
+                            <Check size={12} /> Save
+                          </button>
+                          <button
+                            onClick={() => setEditingCommentId(null)}
+                            className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 rounded-xl px-4 py-3 border border-slate-100 whitespace-pre-wrap">
+                        {c.content}
+                      </p>
+                    )}
                   </div>
                 </div>
               ))}
