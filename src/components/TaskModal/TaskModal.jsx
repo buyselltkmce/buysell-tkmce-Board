@@ -19,7 +19,7 @@ import LinkedWorkItems from "./LinkedWorkItems";
 import IntegrationsModal from "./IntegrationsModal";
 
 export default function TaskModal() {
-  const { selectedTask, isModalOpen, closeTaskModal, updateTask, deleteTask, epics: storeEpics } = useBoardStore();
+  const { tasks, selectedTask, isModalOpen, closeTaskModal, updateTask, deleteTask, epics: storeEpics } = useBoardStore();
   const authUser = useAuthStore((s) => s.user);
   const currentUser = authUser || TEAM_MEMBERS[0];
   const epicsList = storeEpics || EPICS;
@@ -39,24 +39,21 @@ export default function TaskModal() {
   const titleRef = useRef(null);
   const backdropRef = useRef(null);
 
+  const task = tasks?.find((t) => t.id === selectedTask?.id) || selectedTask;
+
   useEffect(() => {
-    if (selectedTask) {
-      setTitle(selectedTask.title);
-      setDesc(selectedTask.description);
-      setEditingTitle(false);
-      setEditingDesc(false);
-      setNewComment("");
-      setNewItem("");
+    if (task) {
+      setTitle(task.title || "");
+      setDesc(task.description || "");
     }
-  }, [selectedTask?.id]);
+  }, [task?.id, task?.title, task?.description]);
 
   useEffect(() => {
     if (editingTitle && titleRef.current) titleRef.current.focus();
   }, [editingTitle]);
 
-  if (!isModalOpen || !selectedTask) return null;
+  if (!isModalOpen || !task) return null;
 
-  const task = selectedTask;
   const attachments = Array.isArray(task.attachmentsList) ? task.attachmentsList : [];
   const pCfg = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG.medium;
   const col  = COLUMNS.find((c) => c.id === task.status);
@@ -65,12 +62,14 @@ export default function TaskModal() {
   const due  = formatDueDate(task.dueDate);
   const checkedCount = (task.checklist || []).filter((c) => c.completed).length;
 
-  const saveTitle = () => {
+  const saveTitle = (e) => {
+    if (e) e.preventDefault();
     if (title.trim()) updateTask(task.id, { title: title.trim() }, currentUser);
     setEditingTitle(false);
   };
 
-  const saveDesc = () => {
+  const saveDesc = (e) => {
+    if (e) e.preventDefault();
     updateTask(task.id, { description: desc }, currentUser);
     setEditingDesc(false);
   };
@@ -84,7 +83,8 @@ export default function TaskModal() {
     }, currentUser);
   };
 
-  const addChecklistItem = () => {
+  const addChecklistItem = (e) => {
+    if (e) e.preventDefault();
     if (!newItem.trim()) return;
     const list = Array.isArray(task.checklist) ? task.checklist : [];
     updateTask(task.id, {
@@ -94,8 +94,8 @@ export default function TaskModal() {
   };
 
   const addComment = (customText) => {
-    const textToPost = customText || newComment;
-    if (!textToPost.trim()) return;
+    const textToPost = typeof customText === "string" ? customText : newComment;
+    if (!textToPost || !textToPost.trim()) return;
     const list = Array.isArray(task.commentList) ? task.commentList : [];
     updateTask(task.id, {
       commentList: [...list, {
@@ -119,12 +119,15 @@ export default function TaskModal() {
       uploadedAt: new Date().toISOString(),
     };
 
-    const updatedList = [newAtt, ...attachments];
+    const currentList = Array.isArray(task.attachmentsList) ? task.attachmentsList : [];
+    const updatedList = [newAtt, ...currentList];
     updateTask(task.id, { attachmentsList: updatedList, attachments: updatedList.length }, currentUser);
+    e.target.value = "";
   };
 
   const handleDeleteAttachment = (attId) => {
-    const updatedList = attachments.filter((a) => a.id !== attId);
+    const currentList = Array.isArray(task.attachmentsList) ? task.attachmentsList : [];
+    const updatedList = currentList.filter((a) => a.id !== attId);
     updateTask(task.id, { attachmentsList: updatedList, attachments: updatedList.length }, currentUser);
   };
 
