@@ -8,9 +8,12 @@ import {
 } from "lucide-react";
 import { PRIORITY_CONFIG, LABEL_COLORS, EPICS } from "../../data/constants";
 import { formatDueDate } from "../../utils/helpers";
+import { useBoardStore } from "../../store/boardStore";
 
 export default function TaskCard({ task, isDragOverlay }) {
   const navigate = useNavigate();
+  const { epics: storeEpics } = useBoardStore();
+  const epicsList = storeEpics || EPICS;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id });
 
@@ -24,7 +27,7 @@ export default function TaskCard({ task, isDragOverlay }) {
   const pCfg = PRIORITY_CONFIG[task.priority];
   const checkedCount = task.checklist.filter((c) => c.completed).length;
 
-  const epic = EPICS.find((e) => e.id === task.epicId) || EPICS[0];
+  const epic = epicsList.find((e) => e.id === task.epicId) || epicsList[0];
   const ticketKey = task.ticketKey || `BSL-${task.id.slice(-3)}`;
 
   const card = (

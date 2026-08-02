@@ -266,14 +266,28 @@ export const useBoardStore = create(
         return list;
       },
 
+      resetEpics: () => set({ epics: EPICS }),
+
       getAllTasks: () => {
         return get().getFilteredTasks(null);
       },
     }),
     {
-      name: "buysell-board-v3",
+      name: "buysell-board-v4",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({ tasks: state.tasks, epics: state.epics }),
+      merge: (persistedState, currentState) => {
+        const storedEpics = persistedState?.epics || [];
+        const mergedEpics = EPICS.map((defaultEpic) => {
+          const found = storedEpics.find((e) => e.id === defaultEpic.id);
+          return found ? { ...defaultEpic, ...found } : defaultEpic;
+        });
+        return {
+          ...currentState,
+          ...persistedState,
+          epics: mergedEpics.length ? mergedEpics : EPICS,
+        };
+      },
     }
   )
 );

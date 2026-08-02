@@ -10,7 +10,8 @@ import { EPICS, CYCLES, COLUMNS, PRIORITY_CONFIG, LABEL_COLORS, TEAM_MEMBERS, MA
 import { formatDueDate } from "../../utils/helpers";
 
 export default function ListView() {
-  const { tasks, getFilteredTasks, moveTask, updateTask, deleteTask, addTask } = useBoardStore();
+  const { tasks, getFilteredTasks, moveTask, updateTask, deleteTask, addTask, epics: storeEpics } = useBoardStore();
+  const epicsList = storeEpics || EPICS;
   const navigate = useNavigate();
 
   const [collapsedSections, setCollapsedSections] = useState({});
@@ -117,7 +118,7 @@ export default function ListView() {
       {/* ── 1. GROUPED BY EPICS (DEFAULT) ── */}
       {displayMode === "by-epic" && (
         <div className="space-y-4">
-          {EPICS.map((epic) => {
+          {epicsList.map((epic) => {
             const epicTasks = allFilteredTasks.filter((t) => (t.epicId || "BSL-EPIC-1") === epic.id);
             const isCollapsed = collapsedSections[epic.id];
             const doneCount = epicTasks.filter((t) => t.status === "deployed_live").length;
@@ -286,7 +287,8 @@ export default function ListView() {
 
 // ── Single Line Task Row Component with Branching Tree ──
 function TaskLineRow({ task }) {
-  const { moveTask, updateTask, deleteTask } = useBoardStore();
+  const { moveTask, updateTask, deleteTask, epics: storeEpics } = useBoardStore();
+  const epicsList = storeEpics || EPICS;
   const navigate = useNavigate();
 
   const [showStatusMenu, setShowStatusMenu]     = useState(false);
@@ -296,7 +298,7 @@ function TaskLineRow({ task }) {
   const due = formatDueDate(task.dueDate);
   const pCfg = PRIORITY_CONFIG[task.priority];
   const col = COLUMNS.find((c) => c.id === task.status);
-  const epic = EPICS.find((e) => e.id === (task.epicId || "BSL-EPIC-1")) || EPICS[0];
+  const epic = epicsList.find((e) => e.id === (task.epicId || "BSL-EPIC-1")) || epicsList[0];
   const ticketKey = task.ticketKey || `BSL-${task.id.slice(-3)}`;
   const isDone = task.status === "deployed_live";
 
@@ -354,7 +356,7 @@ function TaskLineRow({ task }) {
             <div className="px-3 py-1 border-b border-slate-100 dark:border-slate-800 text-[10px] font-mono font-bold text-purple-700 dark:text-purple-400">
               Branch: {MAIN_BRANCH.code}
             </div>
-            {EPICS.map((e) => (
+            {epicsList.map((e) => (
               <button
                 key={e.id}
                 onClick={() => {

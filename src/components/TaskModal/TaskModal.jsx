@@ -23,7 +23,8 @@ const INITIAL_ATTACHMENTS = [
 ];
 
 export default function TaskModal() {
-  const { selectedTask, isModalOpen, closeTaskModal, updateTask, deleteTask } = useBoardStore();
+  const { selectedTask, isModalOpen, closeTaskModal, updateTask, deleteTask, epics: storeEpics } = useBoardStore();
+  const epicsList = storeEpics || EPICS;
   const [editingTitle, setEditingTitle]   = useState(false);
   const [title, setTitle]                 = useState("");
   const [desc, setDesc]                   = useState("");
@@ -62,7 +63,7 @@ export default function TaskModal() {
   const pCfg = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG.medium;
   const col  = COLUMNS.find((c) => c.id === task.status);
   const cycleObj = CYCLES.find((c) => c.id === (task.cycleId || "cycle-2"));
-  const epicObj = EPICS.find((e) => e.id === (task.epicId || "BSL-EPIC-1")) || EPICS[0];
+  const epicObj = epicsList.find((e) => e.id === (task.epicId || "BSL-EPIC-1")) || epicsList[0];
   const due  = formatDueDate(task.dueDate);
   const checkedCount = task.checklist.filter((c) => c.completed).length;
 

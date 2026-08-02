@@ -24,7 +24,8 @@ const EMPTY_FORM = {
 };
 
 export default function CreateTaskModal() {
-  const { isCreateModalOpen, createTaskStatus, closeCreateModal, addTask } = useBoardStore();
+  const { isCreateModalOpen, createTaskStatus, closeCreateModal, addTask, epics: storeEpics } = useBoardStore();
+  const epicsList = storeEpics || EPICS;
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
 
@@ -113,7 +114,7 @@ export default function CreateTaskModal() {
               onChange={(e) => set("epicId", e.target.value)}
               className="w-full px-3 py-2 text-sm font-mono font-bold border border-purple-200 rounded-xl outline-none focus:ring-2 focus:ring-purple-500/20 bg-purple-50 text-purple-700 transition-all cursor-pointer"
             >
-              {EPICS.map((e) => (
+              {epicsList.map((e) => (
                 <option key={e.id} value={e.id}>
                   {MAIN_BRANCH.code} / {e.key}: {e.title}
                 </option>

@@ -27,7 +27,8 @@ const INITIAL_ATTACHMENTS = [
 export default function TaskDetailPage() {
   const { taskId } = useParams();
   const navigate   = useNavigate();
-  const { tasks, updateTask, deleteTask } = useBoardStore();
+  const { tasks, updateTask, deleteTask, epics: storeEpics } = useBoardStore();
+  const epicsList = storeEpics || EPICS;
 
   const task = tasks.find((t) => t.id === taskId);
 
@@ -165,7 +166,7 @@ export default function TaskDetailPage() {
     }
   };
 
-  const epic = EPICS.find((e) => e.id === (task.epicId || "BSL-EPIC-1")) || EPICS[0];
+  const epic = epicsList.find((e) => e.id === (task.epicId || "BSL-EPIC-1")) || epicsList[0];
   const ticketKey = task.ticketKey || `BSL-${task.id.slice(-3)}`;
 
   return (
