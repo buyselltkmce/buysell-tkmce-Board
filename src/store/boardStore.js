@@ -148,7 +148,7 @@ export const useBoardStore = create(
             logs.unshift({
               id: `al-${Date.now()}-${Math.random()}`,
               actor: currentActor,
-              action: `updated task description & specification`,
+              action: `updated task description & specifications`,
               createdAt: now,
             });
           }
@@ -158,6 +158,85 @@ export const useBoardStore = create(
               id: `al-${Date.now()}-${Math.random()}`,
               actor: lastComment.author || currentActor,
               action: `posted a comment: "${lastComment.content.length > 35 ? lastComment.content.slice(0, 35) + '...' : lastComment.content}"`,
+              createdAt: now,
+            });
+          }
+          if (updates.checklist && Array.isArray(updates.checklist)) {
+            const oldLen = task.checklist?.length || 0;
+            if (updates.checklist.length > oldLen) {
+              const newestItem = updates.checklist[updates.checklist.length - 1];
+              logs.unshift({
+                id: `al-${Date.now()}-${Math.random()}`,
+                actor: currentActor,
+                action: `added checklist item "${newestItem.title}"`,
+                createdAt: now,
+              });
+            } else if (updates.checklist.length === oldLen) {
+              logs.unshift({
+                id: `al-${Date.now()}-${Math.random()}`,
+                actor: currentActor,
+                action: `updated checklist completion status`,
+                createdAt: now,
+              });
+            }
+          }
+          if (updates.attachmentsList && Array.isArray(updates.attachmentsList)) {
+            const oldLen = task.attachmentsList?.length || 0;
+            if (updates.attachmentsList.length > oldLen) {
+              const newestFile = updates.attachmentsList[0];
+              logs.unshift({
+                id: `al-${Date.now()}-${Math.random()}`,
+                actor: currentActor,
+                action: `attached file "${newestFile.name}"`,
+                createdAt: now,
+              });
+            } else if (updates.attachmentsList.length < oldLen) {
+              logs.unshift({
+                id: `al-${Date.now()}-${Math.random()}`,
+                actor: currentActor,
+                action: `removed an attachment file`,
+                createdAt: now,
+              });
+            }
+          }
+          if (updates.cycleId && updates.cycleId !== task.cycleId) {
+            const cycleName = CYCLES.find((c) => c.id === updates.cycleId)?.name || updates.cycleId;
+            logs.unshift({
+              id: `al-${Date.now()}-${Math.random()}`,
+              actor: currentActor,
+              action: `moved task to ${cycleName}`,
+              createdAt: now,
+            });
+          }
+          if (updates.lob && updates.lob !== task.lob) {
+            logs.unshift({
+              id: `al-${Date.now()}-${Math.random()}`,
+              actor: currentActor,
+              action: `updated LOB Domain to ${updates.lob}`,
+              createdAt: now,
+            });
+          }
+          if (updates.pi && updates.pi !== task.pi) {
+            logs.unshift({
+              id: `al-${Date.now()}-${Math.random()}`,
+              actor: currentActor,
+              action: `updated Program Increment to ${updates.pi}`,
+              createdAt: now,
+            });
+          }
+          if (updates.fixVersion && updates.fixVersion !== task.fixVersion) {
+            logs.unshift({
+              id: `al-${Date.now()}-${Math.random()}`,
+              actor: currentActor,
+              action: `updated Fix Version to ${updates.fixVersion}`,
+              createdAt: now,
+            });
+          }
+          if (updates.dueDate && updates.dueDate !== task.dueDate) {
+            logs.unshift({
+              id: `al-${Date.now()}-${Math.random()}`,
+              actor: currentActor,
+              action: `updated due date to ${updates.dueDate}`,
               createdAt: now,
             });
           }

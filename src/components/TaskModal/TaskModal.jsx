@@ -8,6 +8,7 @@ import {
   Globe, Sparkles, UserCheck, Layers, Award, ShieldAlert, Zap, Layers3
 } from "lucide-react";
 import { useBoardStore } from "../../store/boardStore";
+import { useAuthStore } from "../../store/authStore";
 import {
   COLUMNS, PRIORITY_CONFIG, LABEL_COLORS, ALL_LABELS,
   TEAM_MEMBERS, CYCLES, EPICS, LOB_OPTIONS, PI_OPTIONS, FIX_VERSIONS
@@ -19,6 +20,8 @@ import IntegrationsModal from "./IntegrationsModal";
 
 export default function TaskModal() {
   const { selectedTask, isModalOpen, closeTaskModal, updateTask, deleteTask, epics: storeEpics } = useBoardStore();
+  const authUser = useAuthStore((s) => s.user);
+  const currentUser = authUser || TEAM_MEMBERS[0];
   const epicsList = storeEpics || EPICS;
   const [editingTitle, setEditingTitle]   = useState(false);
   const [title, setTitle]                 = useState("");
@@ -63,12 +66,12 @@ export default function TaskModal() {
   const checkedCount = (task.checklist || []).filter((c) => c.completed).length;
 
   const saveTitle = () => {
-    if (title.trim()) updateTask(task.id, { title: title.trim() });
+    if (title.trim()) updateTask(task.id, { title: title.trim() }, currentUser);
     setEditingTitle(false);
   };
 
   const saveDesc = () => {
-    updateTask(task.id, { description: desc });
+    updateTask(task.id, { description: desc }, currentUser);
     setEditingDesc(false);
   };
 
@@ -78,7 +81,7 @@ export default function TaskModal() {
       checklist: list.map((c) =>
         c.id === itemId ? { ...c, completed: !c.completed } : c
       ),
-    });
+    }, currentUser);
   };
 
   const addChecklistItem = () => {
@@ -86,21 +89,20 @@ export default function TaskModal() {
     const list = Array.isArray(task.checklist) ? task.checklist : [];
     updateTask(task.id, {
       checklist: [...list, { id: generateId(), title: newItem.trim(), completed: false }],
-    });
+    }, currentUser);
     setNewItem("");
   };
 
   const addComment = (customText) => {
     const textToPost = customText || newComment;
     if (!textToPost.trim()) return;
-    const me = { id: "you", name: "You", avatar: "YO", color: "#2563EB" };
     const list = Array.isArray(task.commentList) ? task.commentList : [];
     updateTask(task.id, {
       commentList: [...list, {
-        id: generateId(), author: me, content: textToPost.trim(), createdAt: new Date().toISOString(),
+        id: generateId(), author: currentUser, content: textToPost.trim(), createdAt: new Date().toISOString(),
       }],
       comments: (task.comments || 0) + 1,
-    });
+    }, currentUser);
     setNewComment("");
   };
 
@@ -118,12 +120,12 @@ export default function TaskModal() {
     };
 
     const updatedList = [newAtt, ...attachments];
-    updateTask(task.id, { attachmentsList: updatedList, attachments: updatedList.length });
+    updateTask(task.id, { attachmentsList: updatedList, attachments: updatedList.length }, currentUser);
   };
 
   const handleDeleteAttachment = (attId) => {
     const updatedList = attachments.filter((a) => a.id !== attId);
-    updateTask(task.id, { attachmentsList: updatedList, attachments: updatedList.length });
+    updateTask(task.id, { attachmentsList: updatedList, attachments: updatedList.length }, currentUser);
   };
 
   const handleBackdropClick = (e) => {

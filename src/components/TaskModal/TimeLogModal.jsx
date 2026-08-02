@@ -111,14 +111,21 @@ export default function TimeLogModal({ taskId, onClose }) {
 
           {/* Date */}
           <div>
-            <label className="text-xs font-bold text-slate-700 block mb-1">Date</label>
-            <div className="flex items-center gap-2 border border-slate-200 rounded-xl px-3 py-2 bg-slate-50">
-              <Calendar size={16} className="text-slate-400" />
+            <label className="text-xs font-bold text-slate-700 block mb-1">Date Logged</label>
+            <div
+              className="flex items-center gap-2 border border-slate-200 rounded-xl px-3 py-2.5 bg-slate-50 focus-within:bg-white focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-500 cursor-pointer transition-all"
+              onClick={(e) => {
+                const input = e.currentTarget.querySelector('input[type="date"]');
+                if (input && typeof input.showPicker === 'function') input.showPicker();
+              }}
+            >
+              <Calendar size={16} className="text-blue-600 shrink-0" />
               <input
                 type="date"
+                required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full text-xs font-medium bg-transparent outline-none text-slate-800"
+                className="w-full text-xs font-bold bg-transparent outline-none text-slate-800 cursor-pointer"
               />
             </div>
           </div>
