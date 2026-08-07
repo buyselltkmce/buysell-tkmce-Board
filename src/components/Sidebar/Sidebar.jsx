@@ -18,7 +18,7 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar() {
-  const { tasks } = useBoardStore();
+  const { tasks, isMobileSidebarOpen, setMobileSidebarOpen } = useBoardStore();
   const { user, logout } = useAuthStore();
   const navigate  = useNavigate();
   const inProgress = tasks.filter((t) => t.status === "in_development").length;
@@ -31,15 +31,31 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-60 shrink-0 bg-white border-r border-slate-100 flex flex-col h-screen">
-      {/* Logo */}
-      <div className="flex items-center gap-2.5 px-5 py-5 border-b border-slate-100">
+    <>
+      {/* Backdrop overlay for mobile */}
+      {isMobileSidebarOpen && (
         <div
-          className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm cursor-pointer"
-          onClick={() => navigate("/")}
-        >
-          <Zap size={16} className="text-white" />
-        </div>
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-30 md:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 md:sticky md:flex w-60 shrink-0 bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 flex flex-col h-screen transition-transform duration-300 ${
+          isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0`}
+      >
+        {/* Logo */}
+        <div className="flex items-center gap-2.5 px-5 py-5 border-b border-slate-100 dark:border-slate-800">
+          <div
+            className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm cursor-pointer"
+            onClick={() => {
+              navigate("/");
+              setMobileSidebarOpen(false);
+            }}
+          >
+            <Zap size={16} className="text-white" />
+          </div>
         <div>
           <p className="text-sm font-bold text-slate-900 leading-tight">Buysell</p>
           <p className="text-[10px] text-slate-400 leading-tight">Project Management</p>
@@ -73,6 +89,7 @@ export default function Sidebar() {
             className={({ isActive }) =>
               `nav-item w-full ${isActive ? "nav-active" : ""}`
             }
+            onClick={() => setMobileSidebarOpen(false)}
           >
             <Icon size={16} />
             <span className="flex-1 text-left">{label}</span>
@@ -107,6 +124,7 @@ export default function Sidebar() {
           </button>
         </div>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }

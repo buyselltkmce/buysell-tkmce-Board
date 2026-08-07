@@ -310,10 +310,10 @@ function TaskLineRow({ task }) {
   return (
     <div
       onClick={() => navigate(`/task/${task.id}`)}
-      className="group grid grid-cols-[2.5fr_1.4fr_1.2fr_1fr_1.2fr_1.1fr_70px_40px] gap-3 px-4 py-2.5 items-center hover:bg-purple-50/40 dark:hover:bg-slate-800/60 cursor-pointer transition-colors"
+      className="group flex flex-col md:grid md:grid-cols-[2.5fr_1.4fr_1.2fr_1fr_1.2fr_1.1fr_70px_40px] gap-2 md:gap-3 px-4 py-3 md:py-2.5 items-start md:items-center hover:bg-purple-50/40 dark:hover:bg-slate-800/60 cursor-pointer transition-colors border-b border-slate-100 dark:border-slate-800/50 md:border-b-0"
     >
       {/* 1. Checkbox + Ticket Key + Title */}
-      <div className="flex items-center gap-2.5 min-w-0">
+      <div className="flex items-center gap-2.5 min-w-0 w-full md:w-auto">
         <button
           onClick={toggleDone}
           className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${
@@ -331,7 +331,7 @@ function TaskLineRow({ task }) {
         </span>
 
         <span
-          className={`text-xs font-semibold truncate transition-colors ${
+          className={`text-xs font-semibold truncate transition-colors flex-1 ${
             isDone ? "line-through text-slate-400 dark:text-slate-500" : "text-slate-800 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400"
           }`}
         >
@@ -339,147 +339,150 @@ function TaskLineRow({ task }) {
         </span>
       </div>
 
-      {/* 2. Branching Tree (BSL -> Epic) Selector */}
-      <div className="relative" onClick={(e) => e.stopPropagation()}>
-        <button
-          onClick={() => setShowEpicMenu(!showEpicMenu)}
-          className="tag-chip font-mono font-bold flex items-center gap-1 truncate max-w-full border"
-          style={{ background: epic.badgeBg, color: epic.color, borderColor: `${epic.color}40` }}
-        >
-          <GitBranch size={10} />
-          <span className="truncate">{MAIN_BRANCH.code}/{epic.key}</span>
-          <ChevronDown size={10} />
-        </button>
+      {/* Grid columns details wrapper (behaves as contents on desktop, flex container on mobile) */}
+      <div className="flex flex-wrap items-center gap-2 mt-1 md:mt-0 w-full md:contents">
+        {/* 2. Branching Tree (BSL -> Epic) Selector */}
+        <div className="relative" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => setShowEpicMenu(!showEpicMenu)}
+            className="tag-chip font-mono font-bold flex items-center gap-1 truncate max-w-full border"
+            style={{ background: epic.badgeBg, color: epic.color, borderColor: `${epic.color}40` }}
+          >
+            <GitBranch size={10} />
+            <span className="truncate">{MAIN_BRANCH.code}/{epic.key}</span>
+            <ChevronDown size={10} />
+          </button>
 
-        {showEpicMenu && (
-          <div className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 z-30 py-1 animate-scale-in">
-            <div className="px-3 py-1 border-b border-slate-100 dark:border-slate-800 text-[10px] font-mono font-bold text-purple-700 dark:text-purple-400">
-              Branch: {MAIN_BRANCH.code}
+          {showEpicMenu && (
+            <div className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 z-30 py-1 animate-scale-in">
+              <div className="px-3 py-1 border-b border-slate-100 dark:border-slate-800 text-[10px] font-mono font-bold text-purple-700 dark:text-purple-400">
+                Branch: {MAIN_BRANCH.code}
+              </div>
+              {epicsList.map((e) => (
+                <button
+                  key={e.id}
+                  onClick={() => {
+                    updateTask(task.id, { epicId: e.id });
+                    setShowEpicMenu(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-3 py-1.5 text-xs ${
+                    task.epicId === e.id ? "bg-purple-50 dark:bg-purple-950/40 font-bold text-purple-700 dark:text-purple-300" : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
+                  }`}
+                >
+                  <span className="font-mono">{e.key}</span>
+                  <span className="text-[10px] truncate max-w-[110px]" style={{ color: e.color }}>{e.title}</span>
+                </button>
+              ))}
             </div>
-            {epicsList.map((e) => (
-              <button
-                key={e.id}
-                onClick={() => {
-                  updateTask(task.id, { epicId: e.id });
-                  setShowEpicMenu(false);
-                }}
-                className={`w-full flex items-center justify-between px-3 py-1.5 text-xs ${
-                  task.epicId === e.id ? "bg-purple-50 dark:bg-purple-950/40 font-bold text-purple-700 dark:text-purple-300" : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
-                }`}
-              >
-                <span className="font-mono">{e.key}</span>
-                <span className="text-[10px] truncate max-w-[110px]" style={{ color: e.color }}>{e.title}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 3. SDLC Status Pipeline Dropdown */}
-      <div className="relative" onClick={(e) => e.stopPropagation()}>
-        <button
-          onClick={() => setShowStatusMenu(!showStatusMenu)}
-          className="tag-chip font-semibold flex items-center gap-1 transition-transform active:scale-95"
-          style={{ background: `${col?.color}18`, color: col?.color }}
-        >
-          <span>{col?.emoji}</span>
-          <span className="truncate">{col?.title}</span>
-          <ChevronDown size={10} />
-        </button>
-
-        {showStatusMenu && (
-          <div className="absolute top-full left-0 mt-1 w-44 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 z-30 py-1 animate-scale-in">
-            {COLUMNS.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => {
-                  moveTask(task.id, c.id);
-                  setShowStatusMenu(false);
-                }}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs ${
-                  task.status === c.id ? "bg-blue-50 dark:bg-blue-950/40 font-bold text-blue-600 dark:text-blue-400" : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
-                }`}
-              >
-                <span>{c.emoji}</span>
-                <span>{c.title}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 4. Priority Dropdown */}
-      <div className="relative" onClick={(e) => e.stopPropagation()}>
-        <button
-          onClick={() => setShowPriorityMenu(!showPriorityMenu)}
-          className={`tag-chip ${pCfg.bg} ${pCfg.color} ${pCfg.border} border flex items-center gap-1`}
-        >
-          <span className={`w-1.5 h-1.5 rounded-full ${pCfg.dot}`} />
-          <span>{pCfg.label}</span>
-        </button>
-
-        {showPriorityMenu && (
-          <div className="absolute top-full left-0 mt-1 w-32 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 z-30 py-1 animate-scale-in">
-            {Object.entries(PRIORITY_CONFIG).map(([k, cfg]) => (
-              <button
-                key={k}
-                onClick={() => {
-                  updateTask(task.id, { priority: k });
-                  setShowPriorityMenu(false);
-                }}
-                className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs ${cfg.color} hover:bg-slate-50 dark:hover:bg-slate-800`}
-              >
-                <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-                <span>{cfg.label}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 5. Assignee */}
-      <div className="flex items-center gap-1.5 min-w-0">
-        <div
-          className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[8px] font-bold shrink-0"
-          style={{ background: task.assignee.color }}
-        >
-          {task.assignee.avatar}
+          )}
         </div>
-        <span className="text-xs text-slate-600 truncate">{task.assignee.name.split(" ")[0]}</span>
-      </div>
 
-      {/* 6. Due Date */}
-      <div className={`flex items-center gap-1 text-xs ${due.color}`}>
-        <Calendar size={11} />
-        <span className="truncate">{due.label}</span>
-      </div>
+        {/* 3. SDLC Status Pipeline Dropdown */}
+        <div className="relative" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => setShowStatusMenu(!showStatusMenu)}
+            className="tag-chip font-semibold flex items-center gap-1 transition-transform active:scale-95"
+            style={{ background: `${col?.color}18`, color: col?.color }}
+          >
+            <span>{col?.emoji}</span>
+            <span className="truncate">{col?.title}</span>
+            <ChevronDown size={10} />
+          </button>
 
-      {/* 7. Estimate Hours */}
-      <div className="flex items-center gap-1 text-xs text-slate-500">
-        <Clock size={11} />
-        <span>{task.estimatedHours}h</span>
-      </div>
+          {showStatusMenu && (
+            <div className="absolute top-full left-0 mt-1 w-44 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 z-30 py-1 animate-scale-in">
+              {COLUMNS.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => {
+                    moveTask(task.id, c.id);
+                    setShowStatusMenu(false);
+                  }}
+                  className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs ${
+                    task.status === c.id ? "bg-blue-50 dark:bg-blue-950/40 font-bold text-blue-600 dark:text-blue-400" : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
+                  }`}
+                >
+                  <span>{c.emoji}</span>
+                  <span>{c.title}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
-      {/* 8. Comment & Delete Actions */}
-      <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-        <button
-          onClick={() => navigate(`/task/${task.id}`)}
-          className="flex items-center gap-1 px-1.5 py-0.5 text-slate-400 hover:text-amber-600 rounded hover:bg-amber-50 transition-colors text-[10px]"
-          title="View & Add Comments"
-        >
-          <MessageSquare size={12} />
-          <span className="font-semibold">{task.commentList?.length || task.comments || 0}</span>
-        </button>
+        {/* 4. Priority Dropdown */}
+        <div className="relative" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => setShowPriorityMenu(!showPriorityMenu)}
+            className={`tag-chip ${pCfg.bg} ${pCfg.color} ${pCfg.border} border flex items-center gap-1`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${pCfg.dot}`} />
+            <span>{pCfg.label}</span>
+          </button>
 
-        <button
-          onClick={() => {
-            if (window.confirm("Delete this task line?")) deleteTask(task.id);
-          }}
-          className="p-1 text-slate-400 hover:text-red-500 rounded hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
-          title="Delete task"
-        >
-          <Trash2 size={13} />
-        </button>
+          {showPriorityMenu && (
+            <div className="absolute top-full left-0 mt-1 w-32 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 z-30 py-1 animate-scale-in">
+              {Object.entries(PRIORITY_CONFIG).map(([k, cfg]) => (
+                <button
+                  key={k}
+                  onClick={() => {
+                    updateTask(task.id, { priority: k });
+                    setShowPriorityMenu(false);
+                  }}
+                  className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs ${cfg.color} hover:bg-slate-50 dark:hover:bg-slate-800`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+                  <span>{cfg.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 5. Assignee */}
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div
+            className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[8px] font-bold shrink-0"
+            style={{ background: task.assignee.color }}
+          >
+            {task.assignee.avatar}
+          </div>
+          <span className="text-xs text-slate-600 truncate">{task.assignee.name.split(" ")[0]}</span>
+        </div>
+
+        {/* 6. Due Date */}
+        <div className={`flex items-center gap-1 text-xs ${due.color}`}>
+          <Calendar size={11} />
+          <span className="truncate">{due.label}</span>
+        </div>
+
+        {/* 7. Estimate Hours */}
+        <div className="flex items-center gap-1 text-xs text-slate-500">
+          <Clock size={11} />
+          <span>{task.estimatedHours}h</span>
+        </div>
+
+        {/* 8. Comment & Delete Actions */}
+        <div className="flex items-center justify-end gap-1 ml-auto md:ml-0" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => navigate(`/task/${task.id}`)}
+            className="flex items-center gap-1 px-1.5 py-0.5 text-slate-400 hover:text-amber-600 rounded hover:bg-amber-50 transition-colors text-[10px]"
+            title="View & Add Comments"
+          >
+            <MessageSquare size={12} />
+            <span className="font-semibold">{task.commentList?.length || task.comments || 0}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              if (window.confirm("Delete this task line?")) deleteTask(task.id);
+            }}
+            className="p-1 text-slate-400 hover:text-red-500 rounded hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
+            title="Delete task"
+          >
+            <Trash2 size={13} />
+          </button>
+        </div>
       </div>
     </div>
   );

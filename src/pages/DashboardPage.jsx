@@ -52,7 +52,7 @@ export default function DashboardPage() {
     .slice(0, 5);
 
   return (
-    <div className="p-8 overflow-y-auto max-w-6xl mx-auto">
+    <div className="p-4 sm:p-8 overflow-y-auto max-w-6xl mx-auto">
       {/* Page title */}
       <motion.div {...fadeUp(0)} className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
@@ -60,7 +60,7 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
           { label: "Total Tasks",     value: total,           icon: BarChart2,    color: "#2563EB", bg: "#EFF6FF" },
           { label: "In Progress",     value: inProgress,      icon: Zap,          color: "#D97706", bg: "#FFFBEB" },
@@ -81,7 +81,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-[1fr_320px] gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 mb-6">
         {/* Completion rate + column breakdown */}
         <motion.div {...fadeUp(5)} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
@@ -146,7 +146,7 @@ export default function DashboardPage() {
         </motion.div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Recent activity */}
         <motion.div {...fadeUp(7)} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">

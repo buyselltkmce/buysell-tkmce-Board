@@ -52,7 +52,7 @@ export default function EpicsPage() {
   };
 
   return (
-    <div className="p-8 overflow-y-auto max-w-7xl mx-auto space-y-8">
+    <div className="p-4 sm:p-8 overflow-y-auto max-w-7xl mx-auto space-y-8">
       {/* ── Page Header ── */}
       <motion.div {...fadeUp(0)} className="flex items-center justify-between flex-wrap gap-4">
         <div>
@@ -172,19 +172,19 @@ export default function EpicsPage() {
                   <div
                     key={task.id}
                     onClick={() => navigate(`/task/${task.id}`)}
-                    className="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-purple-200 hover:bg-purple-50/30 cursor-pointer transition-all flex items-center justify-between gap-4 group"
+                    className="p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-purple-200 hover:bg-purple-50/30 cursor-pointer transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 group"
                   >
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
                       <GitCommit size={14} className="text-slate-400 group-hover:text-purple-600 transition-colors shrink-0" />
                       <span className="font-mono text-xs font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 shrink-0">
                         {ticketKey}
                       </span>
-                      <span className="text-xs font-semibold text-slate-800 dark:text-white group-hover:text-purple-700 transition-colors truncate">
+                      <span className="text-xs font-semibold text-slate-800 dark:text-white group-hover:text-purple-700 transition-colors truncate flex-1">
                         {task.title}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-3 shrink-0">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0 w-full sm:w-auto">
                       <span className="tag-chip font-bold" style={{ background: `${col?.color}18`, color: col?.color }}>
                         {col?.emoji} {col?.title}
                       </span>

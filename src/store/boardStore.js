@@ -34,6 +34,7 @@ export const useBoardStore = create(
       createTaskStatus: null,
       isCloudSynced: isSupabaseConfigured,
       isLoadingTasks: false,
+      isMobileSidebarOpen: false,
 
       updateEpic: (epicId, updates) => {
         set((s) => ({
@@ -501,6 +502,8 @@ export const useBoardStore = create(
       closeTaskModal: () => set({ isModalOpen: false, selectedTask: null }),
       openCreateModal: (status = "ba_requirements") => set({ isCreateModalOpen: true, createTaskStatus: status }),
       closeCreateModal: () => set({ isCreateModalOpen: false, createTaskStatus: null }),
+      setMobileSidebarOpen: (isOpen) => set({ isMobileSidebarOpen: isOpen }),
+      toggleMobileSidebar: () => set((s) => ({ isMobileSidebarOpen: !s.isMobileSidebarOpen })),
 
       // ── Computed ──────────────────────────────────────
       getFilteredTasks: (status) => {

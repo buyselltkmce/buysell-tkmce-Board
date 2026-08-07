@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
+import { Menu } from "lucide-react";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Header from "./components/Header/Header";
 import Board from "./components/Board/Board";
@@ -24,11 +25,11 @@ import ErrorBoundary from "./components/ErrorBoundary";
 function BoardLayout() {
   const { isCreateModalOpen } = useBoardStore();
   return (
-    <div className="board-layout">
+    <div className="board-layout flex flex-col md:flex-row h-screen overflow-hidden">
       <Sidebar />
-      <div className="board-main">
+      <div className="board-main flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         <Header />
-        <div className="board-content">
+        <div className="board-content flex-1 overflow-hidden">
           <Board />
         </div>
       </div>
@@ -41,11 +42,27 @@ function BoardLayout() {
 
 // Pages with sidebar but no board header (full height vertical scrolling)
 function PageLayout({ children }) {
+  const toggleMobileSidebar = useBoardStore((s) => s.toggleMobileSidebar);
   return (
-    <div className="board-layout">
+    <div className="board-layout flex flex-col md:flex-row h-screen overflow-hidden">
       <Sidebar />
-      <div className="flex-1 h-screen overflow-y-auto bg-slate-50 min-w-0">
-        {children}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        {/* Mobile Top Bar */}
+        <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 md:hidden shrink-0">
+          <button
+            onClick={toggleMobileSidebar}
+            className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <Menu size={20} />
+          </button>
+          <span className="text-sm font-bold text-slate-800 dark:text-slate-200">Buysell Project</span>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white text-[10px] font-bold">
+            BP
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-950 min-w-0">
+          {children}
+        </div>
       </div>
     </div>
   );

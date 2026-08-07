@@ -189,8 +189,13 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 40px 16px;
+  padding: 16px 8px;
   overflow-y: auto;
+}
+@media (min-width: 640px) {
+  .modal-backdrop {
+    padding: 40px 16px;
+  }
 }
 
 /* ── Kanban board layout ──────────────────────────────── */
@@ -313,3 +318,11 @@ html.dark ::-webkit-scrollbar-thumb:hover { background: #475569; }
   z-index: 99;
 }
 .tooltip:hover::after { opacity: 1; }
+
+/* Hide scrollbar utility */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

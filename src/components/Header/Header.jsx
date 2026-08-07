@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import {
   Search, Plus, SlidersHorizontal, ChevronDown,
-  LayoutGrid, List, Bell, X, Check, Repeat, Trash2, Sun, Moon
+  LayoutGrid, List, Bell, X, Check, Repeat, Trash2, Sun, Moon, Menu
 } from "lucide-react";
 import { useBoardStore } from "../../store/boardStore";
 import { useThemeStore } from "../../store/themeStore";
@@ -15,7 +15,7 @@ const SORT_OPTIONS = [
 ];
 
 export default function Header() {
-  const { filters, setFilters, resetFilters, viewMode, setViewMode, openCreateModal, clearAllTasks } = useBoardStore();
+  const { filters, setFilters, resetFilters, viewMode, setViewMode, openCreateModal, clearAllTasks, toggleMobileSidebar } = useBoardStore();
   const { theme, toggleTheme } = useThemeStore();
   const [showFilters, setShowFilters] = useState(false);
   const [showSort, setShowSort]       = useState(false);
@@ -59,34 +59,72 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white border-b border-slate-100 px-6 py-3 flex items-center gap-3 z-20 sticky top-0">
-      {/* Project info */}
-      <div className="flex items-center gap-2 mr-4">
-        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shrink-0">
-          <span className="text-[10px] font-bold text-white">BP</span>
+    <header className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-4 md:px-6 py-3 flex flex-col md:flex-row md:items-center gap-3 z-20 sticky top-0">
+      {/* Top Row (brand + hamburger + mobile actions) */}
+      <div className="flex items-center justify-between w-full md:w-auto shrink-0">
+        <div className="flex items-center gap-2">
+          {/* Hamburger menu for mobile */}
+          <button
+            onClick={toggleMobileSidebar}
+            className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 md:hidden shrink-0"
+          >
+            <Menu size={18} />
+          </button>
+          
+          {/* Project info */}
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shrink-0">
+              <span className="text-[10px] font-bold text-white">BP</span>
+            </div>
+            <div>
+              <h1 className="text-xs md:text-sm font-bold text-slate-900 dark:text-white leading-tight">Buysell Project</h1>
+              <p className="text-[9px] md:text-[10px] text-slate-400 leading-tight font-medium">Software Dev</p>
+            </div>
+          </div>
         </div>
-        <div>
-          <h1 className="text-sm font-bold text-slate-900 leading-tight">Buysell Project</h1>
-          <p className="text-[10px] text-slate-400 leading-tight">Software Development</p>
+
+        {/* Mobile action buttons */}
+        <div className="flex items-center gap-1.5 md:hidden">
+          <button className="relative p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <Bell size={15} />
+            <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-red-500 rounded-full" />
+          </button>
+          <button
+            onClick={toggleTheme}
+            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            {theme === "dark" ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} />}
+          </button>
+          <button
+            onClick={() => openCreateModal()}
+            className="p-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm"
+          >
+            <Plus size={15} />
+          </button>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative flex-1 max-w-xs">
-        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-        <input
-          type="text"
-          placeholder="Search tasks…"
-          value={filters.search}
-          onChange={(e) => setFilters({ search: e.target.value })}
-          className="w-full pl-8 pr-3 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
-        />
-        {filters.search && (
-          <button onClick={() => setFilters({ search: "" })} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-            <X size={12} />
-          </button>
-        )}
-      </div>
+      {/* Middle/Bottom Area (Search + Horizontal Scrollable Filters) */}
+      <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 md:gap-3 w-full md:w-auto">
+        {/* Search */}
+        <div className="relative flex-1 max-w-full sm:max-w-xs shrink-0">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search tasks…"
+            value={filters.search}
+            onChange={(e) => setFilters({ search: e.target.value })}
+            className="w-full pl-8 pr-3 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+          />
+          {filters.search && (
+            <button onClick={() => setFilters({ search: "" })} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <X size={12} />
+            </button>
+          )}
+        </div>
+
+        {/* Scrollable Filters row */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1.5 sm:pb-0 scrollbar-none w-full md:w-auto shrink-0">
 
       {/* 2-Week Cycle Selector */}
       <div className="relative">
@@ -294,43 +332,44 @@ export default function Header() {
         </button>
       </div>
 
-      {/* Bell */}
-      <button className="relative p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 transition-colors">
-        <Bell size={16} />
-        <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full border border-white" />
-      </button>
+          {/* Clear All Data */}
+          <button
+            onClick={() => {
+              if (window.confirm("Remove all dummy data and clear the board?")) {
+                clearAllTasks();
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 text-xs font-semibold rounded-lg transition-all shrink-0"
+            title="Clear all tasks"
+          >
+            <Trash2 size={13} />
+            <span className="hidden sm:inline">Clear All Data</span>
+            <span className="sm:hidden">Clear</span>
+          </button>
+        </div>
+      </div>
 
-      {/* Theme Toggle Switcher */}
-      <button
-        onClick={toggleTheme}
-        className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 transition-colors"
-        title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
-      >
-        {theme === "dark" ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
-      </button>
-
-      {/* Clear All Data */}
-      <button
-        onClick={() => {
-          if (window.confirm("Remove all dummy data and clear the board?")) {
-            clearAllTasks();
-          }
-        }}
-        className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 text-xs font-semibold rounded-lg transition-all"
-        title="Clear all tasks from local storage and cloud database"
-      >
-        <Trash2 size={13} />
-        <span>Clear All Data</span>
-      </button>
-
-      {/* Add Task */}
-      <button
-        onClick={() => openCreateModal()}
-        className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all active:scale-95"
-      >
-        <Plus size={15} />
-        <span>New Task</span>
-      </button>
+      {/* Desktop Actions */}
+      <div className="hidden md:flex items-center gap-2 shrink-0 ml-auto">
+        <button className="relative p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 transition-colors">
+          <Bell size={16} />
+          <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full border border-white" />
+        </button>
+        <button
+          onClick={toggleTheme}
+          className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 transition-colors"
+          title={theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
+        >
+          {theme === "dark" ? <Sun size={16} className="text-amber-400" /> : <Moon size={16} />}
+        </button>
+        <button
+          onClick={() => openCreateModal()}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all active:scale-95"
+        >
+          <Plus size={15} />
+          <span>New Task</span>
+        </button>
+      </div>
     </header>
   );
 }

@@ -229,26 +229,26 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="p-8 overflow-y-auto max-w-5xl mx-auto">
+    <div className="p-4 sm:p-8 overflow-y-auto max-w-5xl mx-auto">
       <motion.div {...fadeUp(0)} className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
         <p className="text-sm text-slate-500 mt-1">Manage your account and preferences</p>
       </motion.div>
 
-      <div className="grid grid-cols-[200px_1fr] gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6">
         {/* Left nav */}
-        <motion.div {...fadeUp(1)} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-2 h-fit">
+        <motion.div {...fadeUp(1)} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-2 flex overflow-x-auto md:flex-col gap-1 md:h-fit scrollbar-none shrink-0">
           {SECTIONS.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setActive(id)}
-              className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+              className={`w-auto md:w-full shrink-0 flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                 active === id ? "bg-blue-50 text-blue-700" : "text-slate-600 hover:bg-slate-50"
               }`}
             >
               <Icon size={15} />
               {label}
-              {active === id && <ChevronRight size={12} className="ml-auto" />}
+              {active === id && <ChevronRight size={12} className="ml-auto hidden md:block" />}
             </button>
           ))}
         </motion.div>
@@ -319,7 +319,7 @@ export default function SettingsPage() {
               <h2 className="text-base font-bold text-slate-900">Appearance</h2>
               <div>
                 <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-3">Theme</label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
                     { id: "light",  label: "Light",  icon: Sun     },
                     { id: "dark",   label: "Dark",   icon: Moon    },
@@ -427,7 +427,7 @@ export default function SettingsPage() {
           {active === "data" && (
             <div className="space-y-5">
               <h2 className="text-base font-bold text-slate-900">Data & Export</h2>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
                   { label: "Export as JSON",   desc: "Full data export",          icon: Database },
                   { label: "Export as CSV",    desc: "Spreadsheet compatible",    icon: Globe    },
