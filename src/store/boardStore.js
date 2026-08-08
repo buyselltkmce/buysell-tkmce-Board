@@ -76,7 +76,20 @@ export const useBoardStore = create(
       // ── Actions ───────────────────────────────────────
       addTask: (taskData, actorInfo) => {
         const now = new Date().toISOString();
-        const count = get().tasks.length + 1;
+        const tasks = get().tasks;
+        let nextNum = 101;
+        if (tasks.length > 0) {
+          const keys = tasks
+            .map((t) => {
+              const match = (t.ticketKey || "").match(/BSL-(\d+)/i);
+              return match ? parseInt(match[1], 10) : null;
+            })
+            .filter((n) => n !== null);
+          if (keys.length > 0) {
+            nextNum = Math.max(...keys) + 1;
+          }
+        }
+        const ticketKey = `BSL-${nextNum}`;
         const currentActor = actorInfo || TEAM_MEMBERS[0];
         const initialLog = [
           {
@@ -88,14 +101,14 @@ export const useBoardStore = create(
         ];
 
         const newTask = {
-          ticketKey: `BSL-${100 + count}`,
+          ticketKey,
           epicId: taskData.epicId || "BSL-EPIC-1",
           cycleId: taskData.cycleId || "cycle-3",
           checklist: [],
           commentList: [],
           ...taskData,
           activityLog: taskData.activityLog?.length ? taskData.activityLog : initialLog,
-          id: `task-${Date.now()}`,
+          id: `task-${ticketKey.toLowerCase()}`,
           createdAt: now,
           updatedAt: now,
         };
@@ -221,12 +234,24 @@ export const useBoardStore = create(
         const taskToDuplicate = tasks.find((t) => t.id === id);
         if (!taskToDuplicate) return null;
 
-        const count = tasks.length + 1;
-        const newId = `task-${Date.now()}`;
+        let nextNum = 101;
+        if (tasks.length > 0) {
+          const keys = tasks
+            .map((t) => {
+              const match = (t.ticketKey || "").match(/BSL-(\d+)/i);
+              return match ? parseInt(match[1], 10) : null;
+            })
+            .filter((n) => n !== null);
+          if (keys.length > 0) {
+            nextNum = Math.max(...keys) + 1;
+          }
+        }
+        const ticketKey = `BSL-${nextNum}`;
+        const newId = `task-${ticketKey.toLowerCase()}`;
         const duplicatedTask = {
           ...taskToDuplicate,
           id: newId,
-          ticketKey: `BSL-${100 + count}`,
+          ticketKey,
           title: `${taskToDuplicate.title} (Copy)`,
           createdAt: now,
           updatedAt: now,

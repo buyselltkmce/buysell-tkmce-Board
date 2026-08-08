@@ -2,6 +2,8 @@ import { supabase, isSupabaseConfigured } from "./supabase";
 
 // Convert Supabase DB column names to App task object schema
 function formatTaskFromDb(row) {
+  const ticketKeyMatch = (row.id || "").match(/task-bsl-(\d+)/i);
+  const ticketKey = ticketKeyMatch ? `BSL-${ticketKeyMatch[1]}` : `BSL-${(row.id || "").slice(-3)}`;
   return {
     id: row.id,
     title: row.title,
@@ -21,6 +23,7 @@ function formatTaskFromDb(row) {
     activityLog: row.activity_log || [],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    ticketKey,
   };
 }
 

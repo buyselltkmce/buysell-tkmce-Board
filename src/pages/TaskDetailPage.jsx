@@ -25,7 +25,18 @@ export default function TaskDetailPage() {
   const { tasks, isLoadingTasks, updateTask, deleteTask, duplicateTask, epics: storeEpics, deleteComment, editComment, deleteWorklog, editWorklog } = useBoardStore();
   const epicsList = storeEpics || EPICS;
 
-  const task = tasks.find((t) => t.id === taskId);
+  const task = tasks.find((t) => {
+    if (!t) return false;
+    const tid = (t.id || "").toLowerCase();
+    const tkey = (t.ticketKey || "").toLowerCase();
+    const paramId = (taskId || "").toLowerCase();
+    return (
+      tid === paramId ||
+      tkey === paramId ||
+      tid === `task-${paramId}` ||
+      `task-${tkey}` === paramId
+    );
+  });
 
   const [editingTitle, setEditingTitle]   = useState(false);
   const [title, setTitle]                 = useState("");
@@ -189,7 +200,10 @@ export default function TaskDetailPage() {
   };
 
   const epic = epicsList.find((e) => e.id === (task.epicId || "BSL-EPIC-1")) || epicsList[0];
-  const ticketKey = task.ticketKey || `BSL-${task.id.slice(-3)}`;
+  const ticketKey = task.ticketKey || (() => {
+    const match = (task.id || "").match(/task-bsl-(\d+)/i);
+    return match ? `BSL-${match[1]}` : `BSL-${task.id.slice(-3)}`;
+  })();
 
   return (
     <motion.div

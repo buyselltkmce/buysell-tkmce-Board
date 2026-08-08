@@ -166,7 +166,10 @@ export default function EpicsPage() {
                 const col = COLUMNS.find((c) => c.id === task.status);
                 const pCfg = PRIORITY_CONFIG[task.priority];
                 const due = formatDueDate(task.dueDate);
-                const ticketKey = task.ticketKey || `BSL-${task.id.slice(-3)}`;
+                const ticketKey = task.ticketKey || (() => {
+                  const match = (task.id || "").match(/task-bsl-(\d+)/i);
+                  return match ? `BSL-${match[1]}` : `BSL-${task.id.slice(-3)}`;
+                })();
 
                 return (
                   <div

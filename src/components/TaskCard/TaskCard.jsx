@@ -28,7 +28,10 @@ export default function TaskCard({ task, isDragOverlay }) {
   const checkedCount = task.checklist.filter((c) => c.completed).length;
 
   const epic = epicsList.find((e) => e.id === task.epicId) || epicsList[0];
-  const ticketKey = task.ticketKey || `BSL-${task.id.slice(-3)}`;
+  const ticketKey = task.ticketKey || (() => {
+    const match = (task.id || "").match(/task-bsl-(\d+)/i);
+    return match ? `BSL-${match[1]}` : `BSL-${task.id.slice(-3)}`;
+  })();
 
   const card = (
     <div
