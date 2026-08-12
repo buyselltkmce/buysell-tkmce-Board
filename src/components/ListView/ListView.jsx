@@ -22,7 +22,7 @@ export default function ListView() {
     setCollapsedSections((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const handleQuickAdd = (epicId, cycleId = "cycle-2", status = "ba_requirements") => {
+  const handleQuickAdd = (epicId, cycleId = "cycle-4", status = "ba_requirements") => {
     const text = quickInputs[epicId]?.trim();
     if (!text) return;
 
@@ -213,7 +213,7 @@ export default function ListView() {
       {displayMode === "by-cycle" && (
         <div className="space-y-4">
           {CYCLES.filter((c) => c.id !== "all").map((cycle) => {
-            const cycleTasks = allFilteredTasks.filter((t) => (t.cycleId || "cycle-2") === cycle.id);
+            const cycleTasks = allFilteredTasks.filter((t) => (t.cycleId || "cycle-4") === cycle.id);
             const isCollapsed = collapsedSections[cycle.id];
 
             return (

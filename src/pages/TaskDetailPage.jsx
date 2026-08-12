@@ -94,7 +94,7 @@ export default function TaskDetailPage() {
 
   const pCfg = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG.medium;
   const col  = COLUMNS.find((c) => c.id === task.status) || COLUMNS[0];
-  const cycleObj = CYCLES.find((c) => c.id === (task.cycleId || "cycle-3")) || CYCLES[2];
+  const cycleObj = CYCLES.find((c) => c.id === (task.cycleId || "cycle-4")) || CYCLES.find((c) => c.status === "active") || CYCLES[4];
   const due  = formatDueDate(task.dueDate);
 
   const checkedCount = checklist.filter((c) => c.completed).length;
@@ -886,7 +886,7 @@ export default function TaskDetailPage() {
             <div className="space-y-1">
               <label className="text-[11px] font-semibold text-slate-500 uppercase block">Scrum Cycle</label>
               <select
-                value={task.cycleId || "cycle-2"}
+                value={task.cycleId || "cycle-4"}
                 onChange={(e) => updateTask(task.id, { cycleId: e.target.value })}
                 className="w-full text-xs font-semibold border border-purple-200 rounded-xl px-3 py-2 bg-purple-50 text-purple-700 outline-none cursor-pointer"
               >

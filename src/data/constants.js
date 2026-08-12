@@ -70,8 +70,10 @@ export const CYCLES = [
   { id: "all",     name: "All Cycles",      range: "All Time",              status: "all" },
   { id: "cycle-1", name: "Cycle 1",         range: "Jul 01 – Jul 14, 2026", status: "completed", goal: "Auth & Core Wallet Architecture" },
   { id: "cycle-2", name: "Cycle 2",         range: "Jul 15 – Jul 29, 2026", status: "completed", goal: "Order Matching Engine & Trading UI" },
-  { id: "cycle-3", name: "Cycle 3 (Active)",range: "Jul 30 – Aug 12, 2026", status: "active",    goal: "Realtime WebSockets & Slippage QA" },
-  { id: "cycle-4", name: "Cycle 4",         range: "Aug 13 – Aug 27, 2026", status: "upcoming",  goal: "Fiat Onramp & KYC Verification" },
+  { id: "cycle-3", name: "Cycle 3",         range: "Jul 30 – Aug 12, 2026", status: "completed", goal: "Realtime WebSockets & Slippage QA" },
+  { id: "cycle-4", name: "Cycle 4 (Active)",range: "Aug 13 – Aug 27, 2026", status: "active",    goal: "Fiat Onramp & KYC Verification" },
+  { id: "cycle-5", name: "Cycle 5",         range: "Aug 28 – Sep 10, 2026", status: "upcoming",  goal: "Margin Trading & Risk Management" },
+  { id: "cycle-6", name: "Cycle 6",         range: "Sep 11 – Sep 24, 2026", status: "upcoming",  goal: "Security Audit & Compliance Setup" },
 ];
 
 export const ALL_LABELS = [

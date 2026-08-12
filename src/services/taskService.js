@@ -1,16 +1,18 @@
 import { supabase, isSupabaseConfigured } from "./supabase";
 
+let hasLinkedTasksColumn = null; // null = unknown, true = exists, false = missing
+
 // Convert Supabase DB column names to App task object schema
 function formatTaskFromDb(row) {
   const ticketKeyMatch = (row.id || "").match(/task-bsl-(\d+)/i);
   const ticketKey = ticketKeyMatch ? `BSL-${ticketKeyMatch[1]}` : `BSL-${(row.id || "").slice(-3)}`;
-  return {
+  const task = {
     id: row.id,
     title: row.title,
     description: row.description || "",
     status: row.status,
     priority: row.priority,
-    cycleId: row.cycle_id || "cycle-2",
+    cycleId: row.cycle_id || "cycle-4",
     labels: row.labels || [],
     assignee: row.assignee,
     dueDate: row.due_date,
@@ -25,17 +27,23 @@ function formatTaskFromDb(row) {
     updatedAt: row.updated_at,
     ticketKey,
   };
+
+  if (row && typeof row === "object" && "linked_tasks" in row) {
+    hasLinkedTasksColumn = true;
+    task.linkedTasks = row.linked_tasks || [];
+  }
+  return task;
 }
 
 // Convert App task object schema to Supabase DB column names
 function formatTaskToDb(task) {
-  return {
+  const dbTask = {
     id: task.id,
     title: task.title,
     description: task.description,
     status: task.status,
     priority: task.priority,
-    cycle_id: task.cycleId || "cycle-2",
+    cycle_id: task.cycleId || "cycle-4",
     labels: task.labels,
     assignee: task.assignee,
     due_date: task.dueDate,
@@ -48,6 +56,11 @@ function formatTaskToDb(task) {
     activity_log: task.activityLog,
     updated_at: new Date().toISOString(),
   };
+
+  if (hasLinkedTasksColumn !== false) {
+    dbTask.linked_tasks = task.linkedTasks || [];
+  }
+  return dbTask;
 }
 
 // ── CRUD Operations ───────────────────────────────────
@@ -72,7 +85,22 @@ export async function saveTaskToSupabase(task) {
   try {
     const dbTask = formatTaskToDb(task);
     const { error } = await supabase.from("tasks").upsert([dbTask]);
-    if (error) console.error("Supabase save error:", error.message);
+    if (error) {
+      if (error.code === "PGRST204" || error.message?.includes("linked_tasks")) {
+        console.warn("Supabase does not have linked_tasks column. Retrying without it.");
+        hasLinkedTasksColumn = false;
+        const cleanDbTask = { ...dbTask };
+        delete cleanDbTask.linked_tasks;
+        const { error: retryError } = await supabase.from("tasks").upsert([cleanDbTask]);
+        if (retryError) console.error("Supabase save retry error:", retryError.message);
+      } else {
+        console.error("Supabase save error:", error.message);
+      }
+    } else {
+      if (hasLinkedTasksColumn === null) {
+        hasLinkedTasksColumn = true;
+      }
+    }
   } catch (err) {
     console.error("Supabase save failed:", err);
   }
@@ -95,10 +123,31 @@ export async function updateTaskInSupabase(id, updates) {
     if (updates.commentList !== undefined)    payload.comment_list = updates.commentList;
     if (updates.comments !== undefined)       payload.comments = updates.comments;
     if (updates.progress !== undefined)       payload.progress = updates.progress;
+    if (updates.activityLog !== undefined)    payload.activity_log = updates.activityLog;
+
+    if (updates.linkedTasks !== undefined && hasLinkedTasksColumn !== false) {
+      payload.linked_tasks = updates.linkedTasks;
+    }
+
     payload.updated_at = new Date().toISOString();
 
     const { error } = await supabase.from("tasks").update(payload).eq("id", id);
-    if (error) console.error("Supabase update error:", error.message);
+    if (error) {
+      if (error.code === "PGRST204" || error.message?.includes("linked_tasks")) {
+        console.warn("Supabase does not have linked_tasks column. Retrying without it.");
+        hasLinkedTasksColumn = false;
+        const cleanPayload = { ...payload };
+        delete cleanPayload.linked_tasks;
+        const { error: retryError } = await supabase.from("tasks").update(cleanPayload).eq("id", id);
+        if (retryError) console.error("Supabase update retry error:", retryError.message);
+      } else {
+        console.error("Supabase update error:", error.message);
+      }
+    } else {
+      if (hasLinkedTasksColumn === null && updates.linkedTasks !== undefined) {
+        hasLinkedTasksColumn = true;
+      }
+    }
   } catch (err) {
     console.error("Supabase update failed:", err);
   }

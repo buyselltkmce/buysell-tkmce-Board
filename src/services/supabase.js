@@ -35,6 +35,7 @@ export const supabase = isSupabaseConfigured
     checklist JSONB DEFAULT '[]'::jsonb,
     comment_list JSONB DEFAULT '[]'::jsonb,
     activity_log JSONB DEFAULT '[]'::jsonb,
+    linked_tasks JSONB DEFAULT '[]'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
   );

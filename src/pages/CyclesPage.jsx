@@ -249,7 +249,7 @@ export default function CyclesPage() {
                   {/* Re-assign cycle dropdown */}
                   <div onClick={(e) => e.stopPropagation()} className="shrink-0">
                     <select
-                      value={task.cycleId || "cycle-2"}
+                      value={task.cycleId || "cycle-4"}
                       onChange={(e) => updateTask(task.id, { cycleId: e.target.value })}
                       className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white outline-none focus:ring-2 focus:ring-purple-500/20 text-slate-700"
                     >

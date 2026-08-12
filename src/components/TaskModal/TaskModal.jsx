@@ -63,7 +63,7 @@ export default function TaskModal() {
   const attachments = Array.isArray(task.attachmentsList) ? task.attachmentsList : [];
   const pCfg = PRIORITY_CONFIG[task.priority] || PRIORITY_CONFIG.medium;
   const col  = COLUMNS.find((c) => c.id === task.status);
-  const cycleObj = CYCLES.find((c) => c.id === (task.cycleId || "cycle-3"));
+  const cycleObj = CYCLES.find((c) => c.id === (task.cycleId || "cycle-4")) || CYCLES.find((c) => c.status === "active") || CYCLES[4];
   const epicObj = epicsList.find((e) => e.id === (task.epicId || "BSL-EPIC-1")) || epicsList[0];
   const due  = formatDueDate(task.dueDate);
   const checkedCount = (task.checklist || []).filter((c) => c.completed).length;
@@ -844,7 +844,7 @@ export default function TaskModal() {
               <div className="space-y-1">
                 <label className="text-[10px] font-semibold text-slate-500 uppercase">Scrum Cycle</label>
                 <select
-                  value={task.cycleId || "cycle-2"}
+                  value={task.cycleId || "cycle-4"}
                   onChange={(e) => updateTask(task.id, { cycleId: e.target.value })}
                   className="w-full text-xs font-semibold border border-purple-200 rounded-lg p-2 bg-purple-50 text-purple-700"
                 >

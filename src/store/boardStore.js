@@ -52,7 +52,18 @@ export const useBoardStore = create(
         // 1. Fetch remote tasks
         const remoteTasks = await fetchTasksFromSupabase();
         if (remoteTasks !== null) {
-          set({ tasks: remoteTasks, isCloudSynced: true });
+          set((state) => {
+            const mergedTasks = remoteTasks.map((remoteTask) => {
+              const localTask = state.tasks.find((t) => t.id === remoteTask.id);
+              return {
+                ...remoteTask,
+                linkedTasks: remoteTask.linkedTasks !== undefined
+                  ? remoteTask.linkedTasks
+                  : (localTask?.linkedTasks || []),
+              };
+            });
+            return { tasks: mergedTasks, isCloudSynced: true };
+          });
         }
         set({ isLoadingTasks: false });
 
@@ -63,8 +74,17 @@ export const useBoardStore = create(
               const exists = s.tasks.some((t) => t.id === task.id);
               return {
                 tasks: exists
-                  ? s.tasks.map((t) => (t.id === task.id ? { ...t, ...task } : t))
-                  : [...s.tasks, task],
+                  ? s.tasks.map((t) => {
+                      if (t.id === task.id) {
+                        return {
+                          ...t,
+                          ...task,
+                          linkedTasks: task.linkedTasks !== undefined ? task.linkedTasks : (t.linkedTasks || []),
+                        };
+                      }
+                      return t;
+                    })
+                  : [...s.tasks, { ...task, linkedTasks: task.linkedTasks || [] }],
               };
             });
           } else if (event === "DELETE") {
@@ -103,7 +123,7 @@ export const useBoardStore = create(
         const newTask = {
           ticketKey,
           epicId: taskData.epicId || "BSL-EPIC-1",
-          cycleId: taskData.cycleId || "cycle-3",
+          cycleId: taskData.cycleId || "cycle-4",
           checklist: [],
           commentList: [],
           ...taskData,
@@ -448,6 +468,10 @@ export const useBoardStore = create(
 
       addLinkedTask: (taskId, targetTask, relationship) => {
         const now = new Date().toISOString();
+        let updatedLinks = [];
+        let updatedLog = [];
+        let hasChanged = false;
+
         set((s) => {
           const task = s.tasks.find((t) => t.id === taskId);
           if (!task) return s;
@@ -464,8 +488,8 @@ export const useBoardStore = create(
             assignee: targetTask.assignee,
           };
 
-          const updatedLinks = [...existingLinks, newLink];
-          const updatedLog = [
+          updatedLinks = [...existingLinks, newLink];
+          updatedLog = [
             {
               id: `al-${Date.now()}`,
               actor: TEAM_MEMBERS[0],
@@ -475,22 +499,34 @@ export const useBoardStore = create(
             ...(task.activityLog || []),
           ];
           const updates = { linkedTasks: updatedLinks, activityLog: updatedLog, updatedAt: now };
+          hasChanged = true;
 
           return {
             tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, ...updates } : t)),
             selectedTask: s.selectedTask?.id === taskId ? { ...s.selectedTask, ...updates } : s.selectedTask,
           };
         });
+
+        if (hasChanged) {
+          updateTaskInSupabase(taskId, { linkedTasks: updatedLinks, activityLog: updatedLog });
+        }
       },
 
       removeLinkedTask: (taskId, targetTaskId) => {
         const now = new Date().toISOString();
+        let updatedLinks = [];
+        let updatedLog = [];
+        let hasChanged = false;
+
         set((s) => {
           const task = s.tasks.find((t) => t.id === taskId);
           if (!task) return s;
 
-          const updatedLinks = (task.linkedTasks || []).filter((l) => l.id !== targetTaskId);
-          const updatedLog = [
+          const existingLinks = task.linkedTasks || [];
+          if (!existingLinks.some((l) => l.id === targetTaskId)) return s;
+
+          updatedLinks = existingLinks.filter((l) => l.id !== targetTaskId);
+          updatedLog = [
             {
               id: `al-${Date.now()}`,
               actor: TEAM_MEMBERS[0],
@@ -500,12 +536,17 @@ export const useBoardStore = create(
             ...(task.activityLog || []),
           ];
           const updates = { linkedTasks: updatedLinks, activityLog: updatedLog, updatedAt: now };
+          hasChanged = true;
 
           return {
             tasks: s.tasks.map((t) => (t.id === taskId ? { ...t, ...updates } : t)),
             selectedTask: s.selectedTask?.id === taskId ? { ...s.selectedTask, ...updates } : s.selectedTask,
           };
         });
+
+        if (hasChanged) {
+          updateTaskInSupabase(taskId, { linkedTasks: updatedLinks, activityLog: updatedLog });
+        }
       },
 
       setFilters: (filters) => set((s) => ({ filters: { ...s.filters, ...filters } })),
