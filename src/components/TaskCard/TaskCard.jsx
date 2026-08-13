@@ -102,7 +102,9 @@ export default function TaskCard({ task, isDragOverlay }) {
 
         {/* Description */}
         {task.description && (
-          <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{task.description}</p>
+          <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
+            {task.description.replace(/<[^>]*>/g, " ")}
+          </p>
         )}
 
         {/* Progress bar */}

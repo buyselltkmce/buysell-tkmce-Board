@@ -5,7 +5,7 @@ import { useBoardStore } from "../../store/boardStore";
 import { COLUMNS } from "../../data/constants";
 
 export default function LinkedWorkItems({ currentTask }) {
-  const { tasks, addLinkedTask, removeLinkedTask } = useBoardStore();
+  const { tasks, addLinkedTask, removeLinkedTask, openTaskModal } = useBoardStore();
   const [showAddModal, setShowAddModal] = useState(false);
   const [relationship, setRelationship] = useState("is cloned by");
   const [selectedTargetId, setSelectedTargetId] = useState("");
@@ -62,22 +62,24 @@ export default function LinkedWorkItems({ currentTask }) {
               </span>
               <div className="space-y-1.5">
                 {items.map((item) => {
-                  const col = COLUMNS.find((c) => c.id === item.status);
+                  const actualTask = tasks.find((t) => t.id === item.id) || item;
+                  const col = COLUMNS.find((c) => c.id === actualTask.status);
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-purple-300 transition-all group"
+                      onClick={() => openTaskModal(actualTask)}
+                      className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-purple-300 hover:bg-purple-50/20 transition-all group cursor-pointer"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
-                          {item.ticketKey}
+                          {actualTask.ticketKey}
                         </span>
                         <p className="text-xs font-semibold text-slate-800 truncate group-hover:text-purple-700 transition-colors">
-                          {item.title}
+                          {actualTask.title}
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
                         {col && (
                           <span
                             className="tag-chip font-bold text-[10px]"
@@ -86,13 +88,13 @@ export default function LinkedWorkItems({ currentTask }) {
                             {col.title}
                           </span>
                         )}
-                        {item.assignee && (
+                        {actualTask.assignee && (
                           <div
                             className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[8px] font-bold"
-                            style={{ background: item.assignee.color }}
-                            title={item.assignee.name}
+                            style={{ background: actualTask.assignee.color }}
+                            title={actualTask.assignee.name}
                           >
-                            {item.assignee.avatar}
+                            {actualTask.assignee.avatar}
                           </div>
                         )}
                         <button

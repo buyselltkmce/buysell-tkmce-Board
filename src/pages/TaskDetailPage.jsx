@@ -18,6 +18,7 @@ import TimeLogModal from "../components/TaskModal/TimeLogModal";
 import LinkedWorkItems from "../components/TaskModal/LinkedWorkItems";
 import IntegrationsModal from "../components/TaskModal/IntegrationsModal";
 import HistorySection from "../components/TaskModal/HistorySection";
+import RichTextEditor from "../components/TaskModal/RichTextEditor";
 
 export default function TaskDetailPage() {
   const { taskId } = useParams();
@@ -372,12 +373,9 @@ export default function TaskDetailPage() {
 
             {editingDesc ? (
               <div className="space-y-3 pt-1">
-                <textarea
-                  autoFocus
+                <RichTextEditor
                   value={desc}
-                  onChange={(e) => setDesc(e.target.value)}
-                  rows={5}
-                  className="w-full text-sm text-slate-700 border border-blue-300 rounded-xl p-3 outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
+                  onChange={(val) => setDesc(val)}
                 />
                 <div className="flex gap-2">
                   <button onClick={saveDesc} className="flex items-center gap-1 px-3.5 py-1.5 bg-blue-600 text-white text-xs rounded-xl hover:bg-blue-700 transition-colors font-semibold">
@@ -391,16 +389,9 @@ export default function TaskDetailPage() {
             ) : (
               <div
                 onClick={() => setEditingDesc(true)}
-                className="text-sm text-slate-600 leading-relaxed min-h-[60px] cursor-pointer hover:bg-slate-50 rounded-xl p-3 -m-3 transition-colors border border-transparent hover:border-slate-200 group"
-              >
-                {task.description ? (
-                  <p className="whitespace-pre-wrap">{task.description}</p>
-                ) : (
-                  <span className="text-slate-400 italic flex items-center gap-1.5">
-                    <Edit3 size={13} /> Click to add a detailed description and acceptance criteria…
-                  </span>
-                )}
-              </div>
+                className="text-sm text-slate-600 leading-relaxed min-h-[60px] cursor-pointer hover:bg-slate-50 rounded-xl p-3 -m-3 transition-colors border border-transparent hover:border-slate-200 group wysiwyg-output"
+                dangerouslySetInnerHTML={{ __html: task.description || '<span class="text-slate-400 italic flex items-center gap-1.5"><svg class="lucide lucide-edit-3" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg> Click to add a detailed description and acceptance criteria…</span>' }}
+              />
             )}
           </div>
 

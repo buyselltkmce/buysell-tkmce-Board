@@ -18,6 +18,7 @@ import TimeLogModal from "./TimeLogModal";
 import LinkedWorkItems from "./LinkedWorkItems";
 import IntegrationsModal from "./IntegrationsModal";
 import HistorySection from "./HistorySection";
+import RichTextEditor from "./RichTextEditor";
 
 export default function TaskModal() {
   const { tasks, selectedTask, isModalOpen, closeTaskModal, updateTask, deleteTask, epics: storeEpics, deleteComment, editComment, deleteWorklog, editWorklog } = useBoardStore();
@@ -318,11 +319,9 @@ export default function TaskModal() {
               </h3>
               {editingDesc ? (
                 <div className="space-y-2">
-                  <textarea
+                  <RichTextEditor
                     value={desc}
-                    onChange={(e) => setDesc(e.target.value)}
-                    rows={4}
-                    className="w-full text-xs text-slate-700 border border-blue-300 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-500/20 resize-none bg-white"
+                    onChange={(val) => setDesc(val)}
                   />
                   <div className="flex gap-2">
                     <button onClick={saveDesc} className="px-3 py-1 bg-blue-600 text-white text-xs rounded-md font-semibold">
@@ -334,12 +333,11 @@ export default function TaskModal() {
                   </div>
                 </div>
               ) : (
-                <p
+                <div
                   onClick={() => setEditingDesc(true)}
-                  className="text-xs text-slate-600 leading-relaxed cursor-pointer hover:bg-white rounded-lg p-2 -m-2 transition-colors border border-transparent hover:border-slate-200"
-                >
-                  {task.description || <span className="text-slate-400 italic">Click to add description…</span>}
-                </p>
+                  className="text-xs text-slate-600 leading-relaxed cursor-pointer hover:bg-white rounded-lg p-2 -m-2 transition-colors border border-transparent hover:border-slate-200 wysiwyg-output min-h-[40px]"
+                  dangerouslySetInnerHTML={{ __html: task.description || '<span class="text-slate-400 italic">Click to add description…</span>' }}
+                />
               )}
             </div>
 

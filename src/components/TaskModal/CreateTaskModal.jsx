@@ -4,6 +4,7 @@ import { X, Check } from "lucide-react";
 import { useBoardStore } from "../../store/boardStore";
 import { COLUMNS, PRIORITY_CONFIG, LABEL_COLORS, ALL_LABELS, TEAM_MEMBERS, CYCLES, EPICS, MAIN_BRANCH } from "../../data/constants";
 import { generateId } from "../../utils/helpers";
+import RichTextEditor from "./RichTextEditor";
 
 const EMPTY_FORM = {
   title: "",
@@ -95,12 +96,10 @@ export default function CreateTaskModal() {
           {/* Description */}
           <div>
             <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-1.5">Description</label>
-            <textarea
+            <RichTextEditor
               placeholder="Add more detail…"
               value={form.description}
-              onChange={(e) => set("description", e.target.value)}
-              rows={3}
-              className="w-full px-3 py-2.5 text-sm rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all resize-none"
+              onChange={(val) => set("description", val)}
             />
           </div>
 
