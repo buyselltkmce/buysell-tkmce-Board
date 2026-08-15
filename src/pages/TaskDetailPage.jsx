@@ -6,7 +6,8 @@ import {
   Paperclip, MessageSquare, Flag, Tag, User, ChevronDown,
   CheckSquare, Activity, Send, Circle, Edit3, UploadCloud,
   FileText, Image as ImageIcon, Download, Repeat, FileCode, GitBranch,
-  Globe, Sparkles, UserCheck, Layers, Award, ShieldAlert, Zap, Copy
+  Globe, Sparkles, UserCheck, Layers, Award, ShieldAlert, Zap, Copy,
+  BookOpen, Bug
 } from "lucide-react";
 import { useBoardStore } from "../store/boardStore";
 import {
@@ -232,7 +233,10 @@ export default function TaskDetailPage() {
             <span className="text-slate-400">➔</span>
             <span style={{ color: epic.color }}>{epic.key}</span>
             <span className="text-slate-400">➔</span>
-            <span className="text-slate-900 font-bold">{ticketKey}</span>
+            <span className="text-slate-900 font-bold flex items-center gap-1.5">
+              {task.type === "bug" ? <Bug size={11} className="text-rose-600 shrink-0" /> : <BookOpen size={11} className="text-blue-600 shrink-0" />}
+              {ticketKey}
+            </span>
           </div>
 
           <span className="text-slate-300 hidden sm:inline">/</span>
@@ -348,6 +352,9 @@ export default function TaskDetailPage() {
             )}
 
             <div className="flex items-center gap-2 mt-3 flex-wrap">
+              <span className={`tag-chip font-bold border ${task.type === "bug" ? "bg-rose-50 text-rose-700 border-rose-200" : "bg-blue-50 text-blue-700 border-blue-200"}`}>
+                {task.type === "bug" ? "🐛 Bug" : "📖 Story"}
+              </span>
               <span className={`tag-chip ${pCfg.bg} ${pCfg.color} ${pCfg.border} border`}>{pCfg.label}</span>
               <span className="tag-chip font-bold" style={{ background: `${col?.color}18`, color: col?.color }}>
                 {col?.emoji} {col?.title}
@@ -814,6 +821,19 @@ export default function TaskDetailPage() {
                 {COLUMNS.map((c) => (
                   <option key={c.id} value={c.id}>{c.emoji} {c.title}</option>
                 ))}
+              </select>
+            </div>
+
+            {/* Task Type */}
+            <div className="space-y-1">
+              <label className="text-[11px] font-semibold text-slate-500 uppercase block">Task Type</label>
+              <select
+                value={task.type || "story"}
+                onChange={(e) => updateTask(task.id, { type: e.target.value })}
+                className="w-full text-xs font-bold border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 outline-none cursor-pointer"
+              >
+                <option value="story">📖 User Story</option>
+                <option value="bug">🐛 Bug / Defect</option>
               </select>
             </div>
 

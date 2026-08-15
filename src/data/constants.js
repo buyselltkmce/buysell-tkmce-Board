@@ -104,6 +104,12 @@ export const PRIORITY_CONFIG = {
   low:      { label: "Low",      color: "text-blue-700",   bg: "bg-blue-50",   border: "border-blue-200",   dot: "bg-blue-400"   },
 };
 
+export const TASK_TYPES = {
+  story: { label: "User Story", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-200" },
+  bug:   { label: "Bug",        color: "text-rose-600", bg: "bg-rose-50", border: "border-rose-200" },
+};
+
+
 export const LOB_OPTIONS = [
   "Spot Trading",
   "Margin & Futures",

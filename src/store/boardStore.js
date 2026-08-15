@@ -17,6 +17,7 @@ const DEFAULT_FILTERS = {
   priorities: [],
   assignees: [],
   labels: [],
+  types: [],
   cycleId: "all",
   sortBy: "updatedAt",
 };
@@ -124,6 +125,7 @@ export const useBoardStore = create(
           ticketKey,
           epicId: taskData.epicId || "BSL-EPIC-1",
           cycleId: taskData.cycleId || "cycle-4",
+          type: taskData.type || "story",
           checklist: [],
           commentList: [],
           ...taskData,
@@ -163,6 +165,9 @@ export const useBoardStore = create(
           }
           if (updates.priority && updates.priority !== task.priority) {
             logs.unshift(mkLog("Priority", "changed priority", task.priority?.toUpperCase(), updates.priority.toUpperCase()));
+          }
+          if (updates.type && updates.type !== task.type) {
+            logs.unshift(mkLog("Type", "changed type", (task.type || "story").toUpperCase(), updates.type.toUpperCase()));
           }
           if (updates.assignee && updates.assignee.id !== task.assignee?.id) {
             logs.unshift(mkLog("Assignee", "reassigned task", task.assignee?.name || "Unassigned", updates.assignee.name));
@@ -592,6 +597,7 @@ export const useBoardStore = create(
         if (filters.priorities.length) list = list.filter((t) => filters.priorities.includes(t.priority));
         if (filters.assignees.length)  list = list.filter((t) => filters.assignees.includes(t.assignee.id));
         if (filters.labels.length)     list = list.filter((t) => filters.labels.some((l) => t.labels.includes(l)));
+        if (filters.types && filters.types.length) list = list.filter((t) => filters.types.includes(t.type || "story"));
 
         list.sort((a, b) => {
           switch (filters.sortBy) {

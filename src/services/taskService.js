@@ -1,11 +1,17 @@
 import { supabase, isSupabaseConfigured } from "./supabase";
 
 let hasLinkedTasksColumn = null; // null = unknown, true = exists, false = missing
+let hasTypeColumn = null;        // null = unknown, true = exists, false = missing
 
 // Convert Supabase DB column names to App task object schema
 function formatTaskFromDb(row) {
   const ticketKeyMatch = (row.id || "").match(/task-bsl-(\d+)/i);
   const ticketKey = ticketKeyMatch ? `BSL-${ticketKeyMatch[1]}` : `BSL-${(row.id || "").slice(-3)}`;
+  
+  // Default existing tasks to 'story' unless labeled with 'Bug'
+  const defaultType = row.labels && row.labels.includes("Bug") ? "bug" : "story";
+  const type = row.type || defaultType;
+
   const task = {
     id: row.id,
     title: row.title,
@@ -26,11 +32,15 @@ function formatTaskFromDb(row) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     ticketKey,
+    type,
   };
 
   if (row && typeof row === "object" && "linked_tasks" in row) {
     hasLinkedTasksColumn = true;
     task.linkedTasks = row.linked_tasks || [];
+  }
+  if (row && typeof row === "object" && "type" in row) {
+    hasTypeColumn = true;
   }
   return task;
 }
@@ -60,6 +70,9 @@ function formatTaskToDb(task) {
   if (hasLinkedTasksColumn !== false) {
     dbTask.linked_tasks = task.linkedTasks || [];
   }
+  if (hasTypeColumn !== false) {
+    dbTask.type = task.type || "story";
+  }
   return dbTask;
 }
 
@@ -83,23 +96,47 @@ export async function fetchTasksFromSupabase() {
 export async function saveTaskToSupabase(task) {
   if (!isSupabaseConfigured || !supabase) return;
   try {
-    const dbTask = formatTaskToDb(task);
+    let dbTask = formatTaskToDb(task);
     const { error } = await supabase.from("tasks").upsert([dbTask]);
     if (error) {
+      let changed = false;
+      if (error.message?.includes("type")) {
+        console.warn("Supabase does not have type column. Retrying without it.");
+        hasTypeColumn = false;
+        changed = true;
+      }
       if (error.code === "PGRST204" || error.message?.includes("linked_tasks")) {
         console.warn("Supabase does not have linked_tasks column. Retrying without it.");
         hasLinkedTasksColumn = false;
-        const cleanDbTask = { ...dbTask };
-        delete cleanDbTask.linked_tasks;
-        const { error: retryError } = await supabase.from("tasks").upsert([cleanDbTask]);
-        if (retryError) console.error("Supabase save retry error:", retryError.message);
+        changed = true;
+      }
+      if (changed) {
+        dbTask = formatTaskToDb(task);
+        const { error: retryError } = await supabase.from("tasks").upsert([dbTask]);
+        if (retryError) {
+          let retryChanged = false;
+          if (retryError.message?.includes("type")) {
+            hasTypeColumn = false;
+            retryChanged = true;
+          }
+          if (retryError.code === "PGRST204" || retryError.message?.includes("linked_tasks")) {
+            hasLinkedTasksColumn = false;
+            retryChanged = true;
+          }
+          if (retryChanged) {
+            const finalDbTask = formatTaskToDb(task);
+            const { error: finalError } = await supabase.from("tasks").upsert([finalDbTask]);
+            if (finalError) console.error("Supabase save final retry error:", finalError.message);
+          } else {
+            console.error("Supabase save retry error:", retryError.message);
+          }
+        }
       } else {
         console.error("Supabase save error:", error.message);
       }
     } else {
-      if (hasLinkedTasksColumn === null) {
-        hasLinkedTasksColumn = true;
-      }
+      if (hasLinkedTasksColumn === null) hasLinkedTasksColumn = true;
+      if (hasTypeColumn === null) hasTypeColumn = true;
     }
   } catch (err) {
     console.error("Supabase save failed:", err);
@@ -109,43 +146,77 @@ export async function saveTaskToSupabase(task) {
 export async function updateTaskInSupabase(id, updates) {
   if (!isSupabaseConfigured || !supabase) return;
   try {
-    const payload = {};
-    if (updates.title !== undefined)          payload.title = updates.title;
-    if (updates.description !== undefined)    payload.description = updates.description;
-    if (updates.status !== undefined)         payload.status = updates.status;
-    if (updates.priority !== undefined)       payload.priority = updates.priority;
-    if (updates.cycleId !== undefined)        payload.cycle_id = updates.cycleId;
-    if (updates.labels !== undefined)         payload.labels = updates.labels;
-    if (updates.assignee !== undefined)       payload.assignee = updates.assignee;
-    if (updates.dueDate !== undefined)        payload.due_date = updates.dueDate;
-    if (updates.estimatedHours !== undefined) payload.estimated_hours = updates.estimatedHours;
-    if (updates.checklist !== undefined)      payload.checklist = updates.checklist;
-    if (updates.commentList !== undefined)    payload.comment_list = updates.commentList;
-    if (updates.comments !== undefined)       payload.comments = updates.comments;
-    if (updates.progress !== undefined)       payload.progress = updates.progress;
-    if (updates.activityLog !== undefined)    payload.activity_log = updates.activityLog;
+    const buildPayload = () => {
+      const payload = {};
+      if (updates.title !== undefined)          payload.title = updates.title;
+      if (updates.description !== undefined)    payload.description = updates.description;
+      if (updates.status !== undefined)         payload.status = updates.status;
+      if (updates.priority !== undefined)       payload.priority = updates.priority;
+      if (updates.cycleId !== undefined)        payload.cycle_id = updates.cycleId;
+      if (updates.labels !== undefined)         payload.labels = updates.labels;
+      if (updates.assignee !== undefined)       payload.assignee = updates.assignee;
+      if (updates.dueDate !== undefined)        payload.due_date = updates.dueDate;
+      if (updates.estimatedHours !== undefined) payload.estimated_hours = updates.estimatedHours;
+      if (updates.checklist !== undefined)      payload.checklist = updates.checklist;
+      if (updates.commentList !== undefined)    payload.comment_list = updates.commentList;
+      if (updates.comments !== undefined)       payload.comments = updates.comments;
+      if (updates.progress !== undefined)       payload.progress = updates.progress;
+      if (updates.activityLog !== undefined)    payload.activity_log = updates.activityLog;
 
-    if (updates.linkedTasks !== undefined && hasLinkedTasksColumn !== false) {
-      payload.linked_tasks = updates.linkedTasks;
-    }
+      if (updates.linkedTasks !== undefined && hasLinkedTasksColumn !== false) {
+        payload.linked_tasks = updates.linkedTasks;
+      }
+      if (updates.type !== undefined && hasTypeColumn !== false) {
+        payload.type = updates.type;
+      }
+      payload.updated_at = new Date().toISOString();
+      return payload;
+    };
 
-    payload.updated_at = new Date().toISOString();
-
+    let payload = buildPayload();
     const { error } = await supabase.from("tasks").update(payload).eq("id", id);
     if (error) {
+      let changed = false;
+      if (error.message?.includes("type")) {
+        console.warn("Supabase does not have type column. Retrying without it.");
+        hasTypeColumn = false;
+        changed = true;
+      }
       if (error.code === "PGRST204" || error.message?.includes("linked_tasks")) {
         console.warn("Supabase does not have linked_tasks column. Retrying without it.");
         hasLinkedTasksColumn = false;
-        const cleanPayload = { ...payload };
-        delete cleanPayload.linked_tasks;
-        const { error: retryError } = await supabase.from("tasks").update(cleanPayload).eq("id", id);
-        if (retryError) console.error("Supabase update retry error:", retryError.message);
+        changed = true;
+      }
+      if (changed) {
+        payload = buildPayload();
+        const { error: retryError } = await supabase.from("tasks").update(payload).eq("id", id);
+        if (retryError) {
+          let retryChanged = false;
+          if (retryError.message?.includes("type")) {
+            hasTypeColumn = false;
+            retryChanged = true;
+          }
+          if (retryError.code === "PGRST204" || retryError.message?.includes("linked_tasks")) {
+            hasLinkedTasksColumn = false;
+            retryChanged = true;
+          }
+          if (retryChanged) {
+            payload = buildPayload();
+            const { error: finalError } = await supabase.from("tasks").update(payload).eq("id", id);
+            if (finalError) console.error("Supabase update final retry error:", finalError.message);
+          } else {
+            console.error("Supabase update retry error:", retryError.message);
+          }
+        }
       } else {
         console.error("Supabase update error:", error.message);
       }
     } else {
       if (hasLinkedTasksColumn === null && updates.linkedTasks !== undefined) {
         hasLinkedTasksColumn = true;
+      }
+      if (hasTypeColumn === null && updates.type !== undefined) {
+        hasTypeColumn = true;
       }
     }
   } catch (err) {

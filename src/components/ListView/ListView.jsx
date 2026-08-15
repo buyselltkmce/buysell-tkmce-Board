@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar, Clock, Check, Plus, Trash2, ChevronRight, ChevronDown,
-  Repeat, Target, AlignJustify, LayoutList, GitBranch, Layers, GitCommit, MessageSquare
+  Repeat, Target, AlignJustify, LayoutList, GitBranch, Layers, GitCommit, MessageSquare,
+  BookOpen, Bug
 } from "lucide-react";
 import { useBoardStore } from "../../store/boardStore";
 import { EPICS, CYCLES, COLUMNS, PRIORITY_CONFIG, LABEL_COLORS, TEAM_MEMBERS, MAIN_BRANCH } from "../../data/constants";
@@ -34,6 +35,7 @@ export default function ListView() {
       epicId: epicId,
       cycleId: cycleId,
       labels: ["Feature"],
+      type: "story",
       assignee: TEAM_MEMBERS[0],
       dueDate: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0],
       estimatedHours: 4,
@@ -328,6 +330,12 @@ function TaskLineRow({ task }) {
         >
           {isDone && <Check size={10} />}
         </button>
+
+        {task.type === "bug" ? (
+          <Bug size={12} className="text-rose-600 shrink-0" title="Bug / Defect" />
+        ) : (
+          <BookOpen size={12} className="text-blue-600 shrink-0" title="User Story" />
+        )}
 
         <span className="font-mono text-xs font-bold text-slate-800 dark:text-slate-100 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200 dark:border-slate-700 shrink-0">
           {ticketKey}

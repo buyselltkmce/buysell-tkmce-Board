@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
   Calendar, Clock, Paperclip, MessageSquare, CheckSquare,
-  AlertCircle, Flag, GripVertical, Zap, GitBranch,
+  AlertCircle, Flag, GripVertical, Zap, GitBranch, BookOpen, Bug,
 } from "lucide-react";
 import { PRIORITY_CONFIG, LABEL_COLORS, EPICS } from "../../data/constants";
 import { formatDueDate } from "../../utils/helpers";
@@ -48,9 +48,16 @@ export default function TaskCard({ task, isDragOverlay }) {
           <span className="text-slate-300">/</span>
           <span className="text-slate-700 truncate max-w-[110px]" title={epic.title}>{epic.key}</span>
         </div>
-        <span className="font-bold text-slate-900 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">
-          {ticketKey}
-        </span>
+        <div className="flex items-center gap-1">
+          {task.type === "bug" ? (
+            <Bug size={10} className="text-rose-600 shrink-0" />
+          ) : (
+            <BookOpen size={10} className="text-blue-600 shrink-0" />
+          )}
+          <span className="font-bold text-slate-900 bg-white border border-slate-200 px-1.5 py-0.5 rounded shadow-2xs">
+            {ticketKey}
+          </span>
+        </div>
       </div>
 
       {/* Priority stripe */}

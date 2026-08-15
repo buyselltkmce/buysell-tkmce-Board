@@ -5,7 +5,8 @@ import {
   Paperclip, MessageSquare, Flag, Tag, User, ChevronDown,
   CheckSquare, Activity, Send, Circle, UploadCloud,
   FileText, Image as ImageIcon, Download, Repeat, FileCode,
-  Globe, Sparkles, UserCheck, Layers, Award, ShieldAlert, Zap, Layers3
+  Globe, Sparkles, UserCheck, Layers, Award, ShieldAlert, Zap, Layers3,
+  BookOpen, Bug
 } from "lucide-react";
 import { useBoardStore } from "../../store/boardStore";
 import { useAuthStore } from "../../store/authStore";
@@ -196,7 +197,8 @@ export default function TaskModal() {
               Spaces / BSL
             </span>
             <span>/</span>
-            <span className="text-slate-900 bg-white border border-slate-200 px-2 py-0.5 rounded-md shadow-2xs">
+            <span className="text-slate-900 bg-white border border-slate-200 px-2 py-0.5 rounded-md shadow-2xs flex items-center gap-1.5">
+              {task.type === "bug" ? <Bug size={11} className="text-rose-600 shrink-0" /> : <BookOpen size={11} className="text-blue-600 shrink-0" />}
               {task.ticketKey}
             </span>
           </div>
@@ -292,6 +294,9 @@ export default function TaskModal() {
           )}
 
           <div className="flex items-center gap-2 mt-2 flex-wrap text-xs">
+            <span className={`tag-chip font-bold border ${task.type === "bug" ? "bg-rose-50 text-rose-700 border-rose-200" : "bg-blue-50 text-blue-700 border-blue-200"}`}>
+              {task.type === "bug" ? "🐛 Bug" : "📖 Story"}
+            </span>
             <span className={`tag-chip ${pCfg.bg} ${pCfg.color} ${pCfg.border} border`}>{pCfg.label}</span>
             <span className="tag-chip font-bold" style={{ background: `${col?.color}18`, color: col?.color }}>
               {col?.emoji} {col?.title}
@@ -727,8 +732,21 @@ export default function TaskModal() {
                   style={{ color: col?.color }}
                 >
                   {COLUMNS.map((c) => (
-                    <option key={c.id} value={c.id}>{c.emoji} {c.title}</option>
+                     <option key={c.id} value={c.id}>{c.emoji} {c.title}</option>
                   ))}
+                </select>
+              </div>
+
+              {/* Task Type */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-semibold text-slate-500 uppercase">Task Type</label>
+                <select
+                  value={task.type || "story"}
+                  onChange={(e) => updateTask(task.id, { type: e.target.value }, currentUser)}
+                  className="w-full text-xs font-bold border border-slate-200 rounded-lg p-2 bg-slate-50 outline-none cursor-pointer"
+                >
+                  <option value="story">📖 User Story</option>
+                  <option value="bug">🐛 Bug / Defect</option>
                 </select>
               </div>
 

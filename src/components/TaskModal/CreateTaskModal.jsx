@@ -10,6 +10,7 @@ const EMPTY_FORM = {
   title: "",
   description: "",
   priority: "medium",
+  type: "story",
   epicId: "BSL-EPIC-1",
   cycleId: "cycle-4",
   labels: [],
@@ -103,22 +104,37 @@ export default function CreateTaskModal() {
             />
           </div>
 
-          {/* Branch Epic */}
-          <div>
-            <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-1.5">
-              Branch Epic ({MAIN_BRANCH.code})
-            </label>
-            <select
-              value={form.epicId ?? "BSL-EPIC-1"}
-              onChange={(e) => set("epicId", e.target.value)}
-              className="w-full px-3 py-2 text-sm font-mono font-bold border border-purple-200 rounded-xl outline-none focus:ring-2 focus:ring-purple-500/20 bg-purple-50 text-purple-700 transition-all cursor-pointer"
-            >
-              {epicsList.map((e) => (
-                <option key={e.id} value={e.id}>
-                  {MAIN_BRANCH.code} / {e.key}: {e.title}
-                </option>
-              ))}
-            </select>
+          {/* Branch Epic & Task Type */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-1.5">
+                Branch Epic ({MAIN_BRANCH.code})
+              </label>
+              <select
+                value={form.epicId ?? "BSL-EPIC-1"}
+                onChange={(e) => set("epicId", e.target.value)}
+                className="w-full px-3 py-2 text-sm font-mono font-bold border border-purple-200 rounded-xl outline-none focus:ring-2 focus:ring-purple-500/20 bg-purple-50 text-purple-700 transition-all cursor-pointer"
+              >
+                {epicsList.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {MAIN_BRANCH.code} / {e.key}: {e.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider block mb-1.5">
+                Task Type
+              </label>
+              <select
+                value={form.type ?? "story"}
+                onChange={(e) => set("type", e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 bg-white transition-all cursor-pointer font-semibold"
+              >
+                <option value="story">📖 User Story</option>
+                <option value="bug">🐛 Bug / Defect</option>
+              </select>
+            </div>
           </div>
 
           {/* Status + Priority */}

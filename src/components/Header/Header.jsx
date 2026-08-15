@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import {
   Search, Plus, SlidersHorizontal, ChevronDown,
-  LayoutGrid, List, Bell, X, Check, Repeat, Trash2, Sun, Moon, Menu
+  LayoutGrid, List, Bell, X, Check, Repeat, Trash2, Sun, Moon, Menu,
+  BookOpen, Bug
 } from "lucide-react";
 import { useBoardStore } from "../../store/boardStore";
 import { useThemeStore } from "../../store/themeStore";
@@ -34,7 +35,7 @@ export default function Header() {
   }, []);
 
   const activeFilterCount =
-    filters.priorities.length + filters.assignees.length + filters.labels.length;
+    filters.priorities.length + filters.assignees.length + filters.labels.length + (filters.types?.length || 0);
 
   const togglePriority = (p) => {
     setFilters({
@@ -55,6 +56,13 @@ export default function Header() {
       labels: filters.labels.includes(l)
         ? filters.labels.filter((x) => x !== l)
         : [...filters.labels, l],
+    });
+  };
+  const toggleType = (t) => {
+    setFilters({
+      types: filters.types?.includes(t)
+        ? filters.types.filter((x) => x !== t)
+        : [...(filters.types || []), t],
     });
   };
 
@@ -226,6 +234,37 @@ export default function Header() {
                     {filters.priorities.includes(key) && <Check size={10} />}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            {/* Task Type */}
+            <div>
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Task Type</p>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  onClick={() => toggleType("story")}
+                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-all ${
+                    filters.types?.includes("story")
+                      ? "bg-blue-50 border-blue-300 text-blue-700 font-bold"
+                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  <BookOpen size={11} className="text-blue-500" />
+                  Story
+                  {filters.types?.includes("story") && <Check size={10} />}
+                </button>
+                <button
+                  onClick={() => toggleType("bug")}
+                  className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-all ${
+                    filters.types?.includes("bug")
+                      ? "bg-rose-50 border-rose-300 text-rose-700 font-bold"
+                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                  }`}
+                >
+                  <Bug size={11} className="text-rose-500" />
+                  Bug
+                  {filters.types?.includes("bug") && <Check size={10} />}
+                </button>
               </div>
             </div>
 
