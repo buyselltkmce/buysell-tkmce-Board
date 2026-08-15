@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link2, Plus, X, GitBranch, AlertCircle, ArrowUpRight, Trash2 } from "lucide-react";
+import { Link2, Plus, X, GitBranch, AlertCircle, ArrowUpRight, Trash2, BookOpen, Bug } from "lucide-react";
 import { useBoardStore } from "../../store/boardStore";
 import { COLUMNS } from "../../data/constants";
 
@@ -65,15 +65,24 @@ export default function LinkedWorkItems({ currentTask }) {
                   const actualTask = tasks.find((t) => t.id === item.id) || item;
                   const col = COLUMNS.find((c) => c.id === actualTask.status);
                   return (
-                    <div
+                    <a
                       key={item.id}
-                      onClick={() => openTaskModal(actualTask)}
+                      href={`/task/${actualTask.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-slate-200 hover:border-purple-300 hover:bg-purple-50/20 transition-all group cursor-pointer"
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
-                          {actualTask.ticketKey}
-                        </span>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {actualTask.type === "bug" ? (
+                            <Bug size={10} className="text-rose-600 shrink-0" title="Bug / Defect" />
+                          ) : (
+                            <BookOpen size={10} className="text-blue-600 shrink-0" title="User Story" />
+                          )}
+                          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-50 text-purple-700 border border-purple-200 shrink-0">
+                            {actualTask.ticketKey}
+                          </span>
+                        </div>
                         <p className="text-xs font-semibold text-slate-800 truncate group-hover:text-purple-700 transition-colors">
                           {actualTask.title}
                         </p>
@@ -105,7 +114,7 @@ export default function LinkedWorkItems({ currentTask }) {
                           <Trash2 size={13} />
                         </button>
                       </div>
-                    </div>
+                    </a>
                   );
                 })}
               </div>
