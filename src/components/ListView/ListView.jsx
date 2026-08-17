@@ -11,7 +11,7 @@ import { EPICS, CYCLES, COLUMNS, PRIORITY_CONFIG, LABEL_COLORS, TEAM_MEMBERS, MA
 import { formatDueDate } from "../../utils/helpers";
 
 export default function ListView() {
-  const { tasks, getFilteredTasks, moveTask, updateTask, deleteTask, addTask, epics: storeEpics } = useBoardStore();
+  const { tasks, getFilteredTasks, moveTask, updateTask, deleteTask, addTask, epics: storeEpics, filters } = useBoardStore();
   const epicsList = storeEpics || EPICS;
   const navigate = useNavigate();
 
@@ -214,7 +214,7 @@ export default function ListView() {
       {/* ── 2. GROUPED BY 2-WEEK SCRUM CYCLES ── */}
       {displayMode === "by-cycle" && (
         <div className="space-y-4">
-          {CYCLES.filter((c) => c.id !== "all").map((cycle) => {
+          {CYCLES.filter((c) => c.id !== "all" && (filters.cycleId === "all" || c.id === filters.cycleId)).map((cycle) => {
             const cycleTasks = allFilteredTasks.filter((t) => (t.cycleId || "cycle-4") === cycle.id);
             const isCollapsed = collapsedSections[cycle.id];
 

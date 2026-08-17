@@ -23,12 +23,14 @@ export default function Header() {
   const [showCycles, setShowCycles]   = useState(false);
   const filterRef = useRef(null);
   const sortRef   = useRef(null);
+  const cyclesRef = useRef(null);
 
   // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e) => {
       if (filterRef.current && !filterRef.current.contains(e.target)) setShowFilters(false);
       if (sortRef.current   && !sortRef.current.contains(e.target))   setShowSort(false);
+      if (cyclesRef.current && !cyclesRef.current.contains(e.target)) setShowCycles(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
@@ -135,26 +137,26 @@ export default function Header() {
         <div className="flex items-center gap-2 overflow-x-auto pb-1.5 sm:pb-0 scrollbar-none w-full md:w-auto shrink-0">
 
       {/* 2-Week Cycle Selector */}
-      <div className="relative">
+      <div className="relative" ref={cyclesRef}>
         <button
           onClick={() => { setShowCycles(!showCycles); setShowFilters(false); setShowSort(false); }}
           className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
             filters.cycleId && filters.cycleId !== "all"
-              ? "bg-purple-50 border-purple-300 text-purple-700"
-              : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+              ? "bg-purple-50 border-purple-300 text-purple-700 dark:bg-purple-950/40 dark:border-purple-800 dark:text-purple-300"
+              : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
           }`}
           title="Filter by 2-Week Scrum Cycle"
         >
-          <Repeat size={13} className="text-purple-600" />
+          <Repeat size={13} className="text-purple-600 dark:text-purple-400" />
           <span>{CYCLES.find((c) => c.id === filters.cycleId)?.name ?? "All Cycles"}</span>
           <ChevronDown size={11} className={`transition-transform ${showCycles ? "rotate-180" : ""}`} />
         </button>
 
         {showCycles && (
-          <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-30 py-2 animate-scale-in">
-            <div className="px-3 pb-2 mb-1 border-b border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">2-Week Scrum Cycles</span>
-              <span className="text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded font-bold">14 Days</span>
+          <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 z-30 py-2 animate-scale-in">
+            <div className="px-3 pb-2 mb-1 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">2-Week Scrum Cycles</span>
+              <span className="text-[9px] bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded font-bold">14 Days</span>
             </div>
             {CYCLES.map((c) => (
               <button
@@ -164,7 +166,9 @@ export default function Header() {
                   setShowCycles(false);
                 }}
                 className={`w-full flex items-start gap-2 px-3 py-2 text-left text-xs transition-colors ${
-                  filters.cycleId === c.id ? "bg-purple-50 font-bold text-purple-700" : "hover:bg-slate-50 text-slate-700"
+                  filters.cycleId === c.id
+                    ? "bg-purple-50 dark:bg-purple-950/50 font-bold text-purple-700 dark:text-purple-300"
+                    : "hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
                 }`}
               >
                 <div className="flex-1 min-w-0">
@@ -188,11 +192,11 @@ export default function Header() {
       {/* Filter */}
       <div className="relative" ref={filterRef}>
         <button
-          onClick={() => { setShowFilters(!showFilters); setShowSort(false); }}
+          onClick={() => { setShowFilters(!showFilters); setShowSort(false); setShowCycles(false); }}
           className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border transition-all ${
             showFilters || activeFilterCount > 0
-              ? "bg-blue-50 border-blue-300 text-blue-700"
-              : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+              ? "bg-blue-50 border-blue-300 text-blue-700 dark:bg-blue-950/40 dark:border-blue-800 dark:text-blue-300"
+              : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
           }`}
         >
           <SlidersHorizontal size={14} />
@@ -205,11 +209,11 @@ export default function Header() {
         </button>
 
         {showFilters && (
-          <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-slate-200 z-30 p-4 space-y-4 animate-scale-in">
+          <div className="absolute top-full left-0 mt-2 w-72 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 z-30 p-4 space-y-4 animate-scale-in">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-slate-700">Filters</p>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">Filters</p>
               {activeFilterCount > 0 && (
-                <button onClick={resetFilters} className="text-xs text-blue-600 hover:underline">
+                <button onClick={resetFilters} className="text-xs text-blue-600 dark:text-blue-400 hover:underline">
                   Clear all
                 </button>
               )}
@@ -217,7 +221,7 @@ export default function Header() {
 
             {/* Priority */}
             <div>
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Priority</p>
+              <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Priority</p>
               <div className="flex flex-wrap gap-1.5">
                 {Object.entries(PRIORITY_CONFIG).map(([key, cfg]) => (
                   <button
@@ -225,8 +229,8 @@ export default function Header() {
                     onClick={() => togglePriority(key)}
                     className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-all ${
                       filters.priorities.includes(key)
-                        ? `${cfg.bg} ${cfg.color} ${cfg.border}`
-                        : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                        ? `${cfg.bg} ${cfg.color} ${cfg.border} dark:bg-slate-800 dark:border-slate-700 dark:text-white`
+                        : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800"
                     }`}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
@@ -239,14 +243,14 @@ export default function Header() {
 
             {/* Task Type */}
             <div>
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Task Type</p>
+              <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Task Type</p>
               <div className="flex flex-wrap gap-1.5">
                 <button
                   onClick={() => toggleType("story")}
                   className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-all ${
                     filters.types?.includes("story")
-                      ? "bg-blue-50 border-blue-300 text-blue-700 font-bold"
-                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                      ? "bg-blue-50 border-blue-300 text-blue-700 font-bold dark:bg-blue-950/40 dark:border-blue-800 dark:text-blue-300"
+                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400"
                   }`}
                 >
                   <BookOpen size={11} className="text-blue-500" />
@@ -257,8 +261,8 @@ export default function Header() {
                   onClick={() => toggleType("bug")}
                   className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-all ${
                     filters.types?.includes("bug")
-                      ? "bg-rose-50 border-rose-300 text-rose-700 font-bold"
-                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                      ? "bg-rose-50 border-rose-300 text-rose-700 font-bold dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-300"
+                      : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400"
                   }`}
                 >
                   <Bug size={11} className="text-rose-500" />
@@ -270,7 +274,7 @@ export default function Header() {
 
             {/* Assignee */}
             <div>
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Assignee</p>
+              <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Assignee</p>
               <div className="space-y-1">
                 {TEAM_MEMBERS.map((m) => (
                   <button
@@ -278,8 +282,8 @@ export default function Header() {
                     onClick={() => toggleAssignee(m.id)}
                     className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-xs transition-all ${
                       filters.assignees.includes(m.id)
-                        ? "bg-blue-50 text-blue-700"
-                        : "hover:bg-slate-50 text-slate-700"
+                        ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300"
+                        : "hover:bg-slate-50 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300"
                     }`}
                   >
                     <div
@@ -297,7 +301,7 @@ export default function Header() {
 
             {/* Labels */}
             <div>
-              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Labels</p>
+              <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Labels</p>
               <div className="flex flex-wrap gap-1.5">
                 {ALL_LABELS.map((l) => (
                   <button
@@ -305,8 +309,8 @@ export default function Header() {
                     onClick={() => toggleLabel(l)}
                     className={`px-2 py-0.5 rounded-md text-xs font-medium border transition-all ${
                       filters.labels.includes(l)
-                        ? "bg-blue-600 text-white border-blue-600"
-                        : "bg-white border-slate-200 text-slate-600 hover:border-slate-300"
+                        ? "bg-blue-600 text-white border-blue-600 dark:bg-blue-500 dark:border-blue-500"
+                        : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400"
                     }`}
                   >
                     {l}
@@ -321,22 +325,22 @@ export default function Header() {
       {/* Sort */}
       <div className="relative" ref={sortRef}>
         <button
-          onClick={() => { setShowSort(!showSort); setShowFilters(false); }}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-all"
+          onClick={() => { setShowSort(!showSort); setShowFilters(false); setShowCycles(false); }}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 transition-all dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
         >
           <span>{SORT_OPTIONS.find((o) => o.value === filters.sortBy)?.label ?? "Sort"}</span>
           <ChevronDown size={13} className={`transition-transform ${showSort ? "rotate-180" : ""}`} />
         </button>
         {showSort && (
-          <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-200 z-30 py-1 animate-scale-in">
+          <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 z-30 py-1 animate-scale-in">
             {SORT_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
                 onClick={() => { setFilters({ sortBy: opt.value }); setShowSort(false); }}
                 className={`w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors ${
                   filters.sortBy === opt.value
-                    ? "bg-blue-50 text-blue-700 font-medium"
-                    : "text-slate-700 hover:bg-slate-50"
+                    ? "bg-blue-50 text-blue-700 font-medium dark:bg-blue-950/40 dark:text-blue-300"
+                    : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
                 }`}
               >
                 {filters.sortBy === opt.value && <Check size={12} />}
