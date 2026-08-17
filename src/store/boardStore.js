@@ -18,6 +18,7 @@ const DEFAULT_FILTERS = {
   assignees: [],
   labels: [],
   types: [],
+  statuses: [],
   cycleId: "all",
   sortBy: "updatedAt",
 };
@@ -598,6 +599,7 @@ export const useBoardStore = create(
         if (filters.assignees.length)  list = list.filter((t) => filters.assignees.includes(t.assignee.id));
         if (filters.labels.length)     list = list.filter((t) => filters.labels.some((l) => t.labels.includes(l)));
         if (filters.types && filters.types.length) list = list.filter((t) => filters.types.includes(t.type || "story"));
+        if (filters.statuses && filters.statuses.length) list = list.filter((t) => filters.statuses.includes(t.status));
 
         list.sort((a, b) => {
           switch (filters.sortBy) {

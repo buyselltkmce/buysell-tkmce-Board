@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { useBoardStore } from "../../store/boardStore";
 import { useThemeStore } from "../../store/themeStore";
-import { TEAM_MEMBERS, ALL_LABELS, PRIORITY_CONFIG, CYCLES } from "../../data/constants";
+import { TEAM_MEMBERS, ALL_LABELS, PRIORITY_CONFIG, CYCLES, COLUMNS } from "../../data/constants";
 
 const SORT_OPTIONS = [
   { value: "updatedAt",    label: "Recently Updated" },
@@ -37,7 +37,11 @@ export default function Header() {
   }, []);
 
   const activeFilterCount =
-    filters.priorities.length + filters.assignees.length + filters.labels.length + (filters.types?.length || 0);
+    filters.priorities.length +
+    filters.assignees.length +
+    filters.labels.length +
+    (filters.types?.length || 0) +
+    (filters.statuses?.length || 0);
 
   const togglePriority = (p) => {
     setFilters({
@@ -65,6 +69,13 @@ export default function Header() {
       types: filters.types?.includes(t)
         ? filters.types.filter((x) => x !== t)
         : [...(filters.types || []), t],
+    });
+  };
+  const toggleStatus = (sId) => {
+    setFilters({
+      statuses: filters.statuses?.includes(sId)
+        ? filters.statuses.filter((x) => x !== sId)
+        : [...(filters.statuses || []), sId],
     });
   };
 
@@ -269,6 +280,28 @@ export default function Header() {
                   Bug
                   {filters.types?.includes("bug") && <Check size={10} />}
                 </button>
+              </div>
+            </div>
+
+            {/* Status */}
+            <div>
+              <p className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Status</p>
+              <div className="flex flex-wrap gap-1.5">
+                {COLUMNS.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => toggleStatus(c.id)}
+                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border transition-all ${
+                      filters.statuses?.includes(c.id)
+                        ? "bg-blue-50 border-blue-300 text-blue-700 font-bold dark:bg-blue-950/40 dark:border-blue-800 dark:text-blue-300"
+                        : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400"
+                    }`}
+                  >
+                    <span>{c.emoji}</span>
+                    <span>{c.title.replace(/^\d+\.\s*/, "")}</span>
+                    {filters.statuses?.includes(c.id) && <Check size={10} />}
+                  </button>
+                ))}
               </div>
             </div>
 
