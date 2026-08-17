@@ -25,7 +25,7 @@ export default function TaskDetailPage() {
   const { taskId } = useParams();
   const navigate   = useNavigate();
   const { tasks, isLoadingTasks, updateTask, deleteTask, duplicateTask, epics: storeEpics, deleteComment, editComment, deleteWorklog, editWorklog } = useBoardStore();
-  const epicsList = storeEpics || EPICS;
+  const epicsList = (storeEpics && storeEpics.length > 0) ? storeEpics : EPICS;
 
   const task = tasks.find((t) => {
     if (!t) return false;

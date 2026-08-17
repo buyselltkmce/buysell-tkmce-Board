@@ -27,7 +27,7 @@ const EMPTY_FORM = {
 
 export default function CreateTaskModal() {
   const { isCreateModalOpen, createTaskStatus, closeCreateModal, addTask, epics: storeEpics } = useBoardStore();
-  const epicsList = storeEpics || EPICS;
+  const epicsList = (storeEpics && storeEpics.length > 0) ? storeEpics : EPICS;
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
 

@@ -134,7 +134,7 @@ export default function Header() {
         </div>
 
         {/* Scrollable Filters row */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1.5 sm:pb-0 scrollbar-none w-full md:w-auto shrink-0">
+        <div className="flex flex-wrap items-center gap-2 pb-1.5 sm:pb-0 w-full md:w-auto shrink-0">
 
       {/* 2-Week Cycle Selector */}
       <div className="relative" ref={cyclesRef}>

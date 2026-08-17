@@ -13,7 +13,7 @@ import { useBoardStore } from "../../store/boardStore";
 export default function TaskCard({ task, isDragOverlay }) {
   const navigate = useNavigate();
   const { epics: storeEpics } = useBoardStore();
-  const epicsList = storeEpics || EPICS;
+  const epicsList = (storeEpics && storeEpics.length > 0) ? storeEpics : EPICS;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id });
 

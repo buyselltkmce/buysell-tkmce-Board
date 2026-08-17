@@ -12,7 +12,7 @@ import { formatDueDate } from "../../utils/helpers";
 
 export default function ListView() {
   const { tasks, getFilteredTasks, moveTask, updateTask, deleteTask, addTask, epics: storeEpics, filters } = useBoardStore();
-  const epicsList = storeEpics || EPICS;
+  const epicsList = (storeEpics && storeEpics.length > 0) ? storeEpics : EPICS;
   const navigate = useNavigate();
 
   const [collapsedSections, setCollapsedSections] = useState({});
@@ -290,7 +290,7 @@ export default function ListView() {
 // ── Single Line Task Row Component with Branching Tree ──
 function TaskLineRow({ task }) {
   const { moveTask, updateTask, deleteTask, epics: storeEpics } = useBoardStore();
-  const epicsList = storeEpics || EPICS;
+  const epicsList = (storeEpics && storeEpics.length > 0) ? storeEpics : EPICS;
   const navigate = useNavigate();
 
   const [showStatusMenu, setShowStatusMenu]     = useState(false);

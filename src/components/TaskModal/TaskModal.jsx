@@ -25,7 +25,7 @@ export default function TaskModal() {
   const { tasks, selectedTask, isModalOpen, closeTaskModal, updateTask, deleteTask, epics: storeEpics, deleteComment, editComment, deleteWorklog, editWorklog } = useBoardStore();
   const authUser = useAuthStore((s) => s.user);
   const currentUser = authUser || TEAM_MEMBERS[0];
-  const epicsList = storeEpics || EPICS;
+  const epicsList = (storeEpics && storeEpics.length > 0) ? storeEpics : EPICS;
   const [editingTitle, setEditingTitle]   = useState(false);
   const [title, setTitle]                 = useState("");
   const [desc, setDesc]                   = useState("");

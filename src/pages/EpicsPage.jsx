@@ -19,7 +19,7 @@ export default function EpicsPage() {
   const { tasks, setFilters, epics: storeEpics, updateEpic, resetEpics } = useBoardStore();
   const navigate = useNavigate();
 
-  const epicsList = storeEpics || DEFAULT_EPICS;
+  const epicsList = (storeEpics && storeEpics.length > 0) ? storeEpics : DEFAULT_EPICS;
   const [selectedEpicId, setSelectedEpicId] = useState("BSL-EPIC-1");
 
   // Edit Epic Modal state
